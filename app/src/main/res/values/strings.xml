@@ -29,7 +29,7 @@
     <string name="pmSearch">Search</string>
     <string name="pmShareResults">Share Results</string>
     <string name="pHelp">This tool is designed for those who are about to migrate to a new country and want to know which country is the best choice for them.\n\nFirst you have to define some criteria for your desired country; then this tool will create relative percentage scores out of the candidate countries\' rankings and statistics, according to those criteria. In the results\' list, there will always be a country with 100% score which is the best in the list, and also there will always be another country with 0% score which is the worst country in the list, and the others will be listed between them with relative scores.\n\nThis tool will just show you which country is better than the others in the list, even if that country has terrible conditions! Thus everything is relative here.</string>
-    <string name="about">Mahdi Parastesh\nE-Mail: fulcrum1378@gmail.com\nInstagram: @fulcrum1378</string>
+    <string name="about">Mahdi Parastesh\nE-Mail: fulcrum522@hotmail.com\nInstagram: @fulcrum1378</string>
     <string name="shareResSubject">MIGRATIO Results</string>
     <string name="shareResChooser">Choose how to share the results&#8230;</string>
 

@@ -74,6 +74,7 @@ data class Criterion(
             override fun newArray(size: Int) = arrayOfNulls<Criterion>(size)
         }
 
+        @Suppress("SpellCheckingInspection")
         val TAGS = arrayOf(
             "airpol", "humdev", "gayhap", "lngepi", "langen", "avgwth", "sumwin", "crimer",
             "worisk", "gpeace", "dnganm", "suicid", "sunshn", "frerel", "frebio", "fredrg",

@@ -12,8 +12,8 @@ import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.ByteArrayInputStream
 import java.io.IOException
-import java.lang.Exception
-import java.nio.charset.Charset
+import java.net.URLDecoder
+import java.net.URLEncoder
 
 class Parse(val c: Context, val handler: Handler, val type: Types) : Thread() {
     companion object {
@@ -41,7 +41,10 @@ class Parse(val c: Context, val handler: Handler, val type: Types) : Thread() {
         if (iType == -1) return
 
         Volley.newRequestQueue(c).add(
-            StringRequest(Request.Method.GET, address, { res ->
+            StringRequest(Request.Method.GET, address, { oldRes ->
+                val res = URLDecoder.decode(
+                    URLEncoder.encode(oldRes, Charsets.ISO_8859_1.name()), Charsets.UTF_8.name()
+                )
                 handler.obtainMessage(
                     Works.DOWNLOAD.ordinal, iType, 0,
                     if (res.substring(0, 5) == "<?xml") when (type) {
@@ -69,11 +72,11 @@ class Parse(val c: Context, val handler: Handler, val type: Types) : Thread() {
 
     @Throws(XmlPullParserException::class, IOException::class)
     private fun countries(res: String): List<Country> {
-        val input = ByteArrayInputStream(res.toByteArray(Charset.forName("UTF-8")))
+        val input = ByteArrayInputStream(res.toByteArray(Charsets.UTF_8))
         var countries: MutableList<Country>
         XmlPullParserFactory.newInstance().newPullParser().apply {
             setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
-            setInput(input, null)
+            setInput(input, Charsets.UTF_8.name())
             nextTag()
 
             require(XmlPullParser.START_TAG, null, tagCountries)
@@ -136,11 +139,11 @@ class Parse(val c: Context, val handler: Handler, val type: Types) : Thread() {
 
     @Throws(XmlPullParserException::class, IOException::class)
     private fun criteria(res: String): List<Criterion>? {
-        val input = ByteArrayInputStream(res.toByteArray(Charset.forName("UTF-8")))
+        val input = ByteArrayInputStream(res.toByteArray(Charsets.UTF_8))
         var criteria: MutableList<Criterion>?
         XmlPullParserFactory.newInstance().newPullParser().apply {
             setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
-            setInput(input, null)
+            setInput(input, Charsets.UTF_8.name())
             nextTag()
 
             require(XmlPullParser.START_TAG, null, tagCriteria)

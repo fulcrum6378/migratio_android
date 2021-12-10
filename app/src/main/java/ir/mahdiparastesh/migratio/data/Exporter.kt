@@ -16,7 +16,7 @@ import ir.mahdiparastesh.migratio.Select
 import java.io.*
 import java.util.*
 
-class Exporter(val that: AppCompatActivity) {
+class Exporter(that: AppCompatActivity) {
     var pack: Exported? = null
 
     private var exportLauncher: ActivityResultLauncher<Intent> =
