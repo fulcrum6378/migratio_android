@@ -7,6 +7,7 @@ import android.content.*
 import android.graphics.Typeface
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkInfo
 import android.os.Build
 import android.os.CountDownTimer
 import android.os.Handler
@@ -43,10 +44,11 @@ class Fun {
         lateinit var textFont: Typeface
         lateinit var current: AppCompatActivity
 
-        const val cloudFol = "https://migratio.mahdiparastesh.ir/xml/"
         const val defDataDB = "data"
         const val td1Dur = 168
         const val doRefreshTime: Long = 86400000// A day
+        val ssl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "s" else ""
+        val cloudFol = "http${ssl}://migratio.mahdiparastesh.ir/xml/"
         var dm = DisplayMetrics()
         var censorBreak = 0
         var cm: ConnectivityManager? = null
@@ -88,10 +90,19 @@ class Fun {
             if (!::textFont.isInitialized) textFont = fonts(c, Fonts.TEXT)
 
             cm = that.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
-            if (!cmCallbackSet && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) cm?.let {
-                it.registerDefaultNetworkCallback(cmCallback)
-                cmCallbackSet = true
-            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                if (!cmCallbackSet) cm?.let {
+                    it.registerDefaultNetworkCallback(cmCallback)
+                    cmCallbackSet = true
+                }
+            } else connected = isOnlineOld()
+        }
+
+        @Suppress("Deprecation")
+        fun isOnlineOld(): Boolean {
+            var nwi: NetworkInfo? = null
+            if (cm != null) nwi = cm!!.activeNetworkInfo
+            return nwi != null && nwi.isConnected
         }
 
         fun dp(px: Int = 0) = (dm.density * px.toFloat()).toInt()

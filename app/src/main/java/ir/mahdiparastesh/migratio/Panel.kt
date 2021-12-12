@@ -164,6 +164,8 @@ class Panel : AppCompatActivity() {
         b.logoText.typeface = logoFont
         b.logoReload.setOnClickListener {
             if (b.loading.visibility == View.VISIBLE) return@setOnClickListener
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+                connected = Fun.isOnlineOld()
             if (connected) {
                 anReload = Fun.load1(b.loading, b.logoReload)
                 Parse(c, handler, Types.COUNTRY).start()

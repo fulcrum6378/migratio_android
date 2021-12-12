@@ -32,7 +32,8 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginHorizontal="28dp"
+        android:layout_marginLeft="28dp"
+        android:layout_marginRight="28dp"
         android:background="@color/myConSeparator"
         app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
