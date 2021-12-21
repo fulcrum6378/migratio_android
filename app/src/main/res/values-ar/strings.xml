@@ -11,7 +11,7 @@
     <string name="ok">حسنا</string>
     <string name="yes">نعم</string>
     <string name="no">لا</string>
-    <string name="copied">Copied!</string>
+    <string name="copied">نسخ!</string>
 
     <!-- FONTS -->
     <string name="fnLogo">w_sari.ttf</string>
@@ -46,6 +46,7 @@
     <string name="smHelp">@string/pmHelp</string>
     <string name="smExport">تصدير الإعدادات</string>
     <string name="smImport">استيراد الإعدادات</string>
+    <string name="smSources">المصادر</string>
     <string name="sureResetAll">هل أنت متأكد من أنك تريد إعادة تعيين جميع التغييرات التي أجريتها في قسم المعايير؟</string>
     <string name="clcSource">المصدر</string>
     <string name="exportDone">اكتمل التصدير!</string>

@@ -183,7 +183,7 @@ class Fun {
             onOk: DialogInterface.OnClickListener? = null,
             onCancel: DialogInterface.OnCancelListener? = null,
             censorBreaker: Boolean = false
-        ) {
+        ): Boolean {
             AlertDialog.Builder(that, R.style.alertDialogue1).apply {
                 setTitle(title)
                 setMessage(message)
@@ -213,6 +213,7 @@ class Fun {
                     }.start()
                 }
             }
+            return true
         }
 
         fun alertDialogue2(
@@ -221,7 +222,7 @@ class Fun {
             onNo: DialogInterface.OnClickListener? = null,
             onCancel: DialogInterface.OnCancelListener? = null,
             font: Typeface = textFont
-        ) {
+        ): Boolean {
             AlertDialog.Builder(that, R.style.alertDialogue1).apply {
                 setTitle(title)
                 setMessage(message)
@@ -236,13 +237,13 @@ class Fun {
                 fixADTitle(that, window, font)
                 fixADMsg(that, window, font)
             }
+            return true
         }
 
         fun alertDialogue3(
             that: AppCompatActivity, title: Int, message: String,
-            copyable: Boolean,
-            linkify: Boolean = false
-        ) {
+            copyable: Boolean, linkify: Boolean = false
+        ): Boolean {
             AlertDialog.Builder(that, R.style.alertDialogue1).apply {
                 setTitle(title)
                 setMessage(message)
@@ -259,6 +260,7 @@ class Fun {
                     true
                 }
             }
+            return true
         }
 
         fun fixADButton(

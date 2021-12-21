@@ -38,7 +38,7 @@ class Select : AppCompatActivity() {
     var conAdap: ConAdap? = null
     var criAdap: CriAdap? = null
     var countries: MutableList<Country>? = null
-    var allCriteria: MutableList<Criterion>? = null
+    var allCriteria: List<Criterion>? = null
     var criteria: MutableList<Criterion>? = null
     var switchedTo2nd = false
     var doSave = true
@@ -77,7 +77,7 @@ class Select : AppCompatActivity() {
                         Types.MY_CRITERION.ordinal -> {
                             myCriteria = msg.obj as ArrayList<MyCriterion>
                             if (myCriteria != null) arrangeCriteria()
-                            //////////////////////////////////////////////else
+                            // TODO: ELSE
                         }
                     }
 
@@ -128,14 +128,15 @@ class Select : AppCompatActivity() {
                 arrangeCountries()
                 criteria =
                     (intent.extras!!.getParcelableArray("criteria") as Array<Parcelable>).toList() as MutableList<Criterion>
-                allCriteria = criteria
+                allCriteria = criteria?.map { it.copy() }
                 if (criteria != null)
                     Collections.sort(criteria!!, Criterion.Companion.SortCri(1))
                 val toBeCensored = ArrayList<Int>()
                 if (criteria != null) for (cri in criteria!!.indices)
                     if (criteria!![cri].censor > 0 && sp.getBoolean(exCensor, true))
                         toBeCensored.add(cri)
-                for (ce in toBeCensored) criteria!!.removeAt(ce)
+                for (ce in toBeCensored.size - 1 downTo 0)
+                    criteria!!.removeAt(toBeCensored[ce])
                 if (myCriteria != null) arrangeCriteria()
                 else Work(
                     c, handler, Works.GET_ALL, Types.MY_CRITERION,
@@ -187,25 +188,22 @@ class Select : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.smSelectAll -> {
-            selectAll(true); true
-        }
-        R.id.smDeselectAll -> {
-            selectAll(false); true
-        }
+        R.id.smSelectAll -> selectAll(true)
+        R.id.smDeselectAll -> selectAll(false)
         R.id.smExport -> exporter.export()
         R.id.smImport -> exporter.import()
-        R.id.smResetAll -> {
-            Fun.alertDialogue2(this, R.string.smResetAll, R.string.sureResetAll,
-                DialogInterface.OnClickListener { _, _ ->
-                    if (allCriteria == null) return@OnClickListener
-                    Fun.defaultMyCriteria(allCriteria!!, handler)
-                })
-            true
-        }
-        R.id.smHelp -> {
-            help(); true
-        }
+        R.id.smResetAll -> Fun.alertDialogue2(this, R.string.smResetAll, R.string.sureResetAll,
+            DialogInterface.OnClickListener { _, _ ->
+                if (allCriteria == null) return@OnClickListener
+                Fun.defaultMyCriteria(allCriteria!!, handler)
+            })
+        R.id.smSources -> Fun.alertDialogue3(
+            this@Select, R.string.smSources,
+            criteria?.map { it.reference }?.toSet()?.joinToString("\n\n")
+                ?: resources.getString(R.string.noInternet),
+            copyable = false, linkify = true
+        )
+        R.id.smHelp -> help()
         else -> super.onOptionsItemSelected(item)
     }
 
@@ -269,7 +267,7 @@ class Select : AppCompatActivity() {
         return isFocused
     }
 
-    fun selectAll(b: Boolean = true) {
+    fun selectAll(b: Boolean = true): Boolean {
         if (!switchedTo2nd) {
             for (con in conCheck.indices) conCheck[con] = b
             handler?.obtainMessage(Works.SAVE_MY_COUNTRIES.ordinal, null)?.sendToTarget()
@@ -282,18 +280,20 @@ class Select : AppCompatActivity() {
                 listOf(myCriteria, Works.NOTIFY_ON_SAVED.ordinal, Types.MY_CRITERION.ordinal)
             ).start()
         }
+        return true
     }
 
     fun shouldBeAdded(mycri: MyCriterion): Boolean =
         Computation.findCriByTag(mycri.tag, criteria!!.toList()) != null
 
-    fun help() {
-        if (showingHelp) return
+    fun help(): Boolean {
+        if (showingHelp) return false
         showingHelp = true
         Fun.alertDialogue1(
             this, R.string.pmHelp, R.string.pHelp, textFont,
             { _, _ -> showingHelp = false }, { showingHelp = false }, true
         )
+        return true
     }
 
     fun cut() {

@@ -46,6 +46,7 @@
     <string name="smHelp">@string/pmHelp</string>
     <string name="smExport">Export Settings</string>
     <string name="smImport">Import Settings</string>
+    <string name="smSources">Sources</string>
     <string name="sureResetAll">Are you sure you want to reset all the changes you\'ve made in the Criteria section?</string>
     <string name="clcSource">Source</string>
     <string name="exportDone">Exporting was completed!</string>

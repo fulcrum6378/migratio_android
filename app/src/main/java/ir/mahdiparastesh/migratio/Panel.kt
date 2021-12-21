@@ -290,10 +290,8 @@ class Panel : AppCompatActivity() {
                 }, resources.getString(R.string.shareResChooser)))
             true
         }
-        R.id.pmHelp -> {
-            help(); true; }
-        R.id.pmAbout -> {
-            about(); true; }
+        R.id.pmHelp -> help()
+        R.id.pmAbout -> about()
         else -> super.onOptionsItemSelected(item)
     }
 
@@ -404,19 +402,21 @@ class Panel : AppCompatActivity() {
         return sb.toString()
     }
 
-    fun help() {
-        if (showingHelp) return
+    fun help(): Boolean {
+        if (showingHelp) return false
         showingHelp = true
         Fun.alertDialogue1(this, R.string.pmHelp, R.string.pHelp, textFont,
             { _, _ -> showingHelp = false }, { showingHelp = false }
         )
+        return true
     }
 
-    fun about() {
-        if (showingAbout) return
+    fun about(): Boolean {
+        if (showingAbout) return false
         showingAbout = true
         Fun.alertDialogue1(this, R.string.pmAbout, R.string.about, textFont,
             { _, _ -> showingAbout = false }, { showingAbout = false }
         )
+        return true
     }
 }

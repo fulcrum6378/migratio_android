@@ -16,6 +16,9 @@
         android:id="@+id/smResetAll"
         android:title="@string/smResetAll" />
     <item
+        android:id="@+id/smSources"
+        android:title="@string/smSources" />
+    <item
         android:id="@+id/smHelp"
         android:title="@string/smHelp" />
 </menu>

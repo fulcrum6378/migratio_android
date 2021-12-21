@@ -17,7 +17,7 @@ import ir.mahdiparastesh.migratio.R
 import ir.mahdiparastesh.migratio.data.Country
 import kotlin.math.round
 
-class MyConAdap(val c: Context, val list: ArrayList<ir.mahdiparastesh.migratio.Computation>, val cons: List<Country>) :
+class MyConAdap(val c: Context, val list: ArrayList<Computation>, val cons: List<Country>) :
     RecyclerView.Adapter<MyConAdap.MyViewHolder>() {
 
     class MyViewHolder(val v: ConstraintLayout) : RecyclerView.ViewHolder(v)
@@ -42,7 +42,12 @@ class MyConAdap(val c: Context, val list: ArrayList<ir.mahdiparastesh.migratio.C
         val separator = h.v[separatorPos]
 
         // Texts
-        tvName.text = "${i + 1}. ${Fun.countryNames()[ir.mahdiparastesh.migratio.Computation.findConById(list[i].id, cons)!!.id.toInt()]}"
+        tvName.text = "${i + 1}. ${
+            Fun.countryNames()[Computation.findConById(
+                list[i].id,
+                cons
+            )!!.id.toInt()]
+        }"
         tvScore.text = "${round(list[i].score).toInt()}%"//DecimalFormat("#").format(list[i].score)
 
         // Clicks

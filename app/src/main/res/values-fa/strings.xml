@@ -46,6 +46,7 @@
     <string name="smHelp">@string/pmHelp</string>
     <string name="smExport">استخراج تنظیمات</string>
     <string name="smImport">وارد کردن تنظیمات</string>
+    <string name="smSources">منابع</string>
     <string name="sureResetAll">آیا مطمئنید که می خواهید تمام تغییراتی که در بخش \"معیارها\" بوجود آوردید را به حالت اول بازگردانید؟</string>
     <string name="clcSource">منبع</string>
     <string name="exportDone">استخراج انجام شد!</string>

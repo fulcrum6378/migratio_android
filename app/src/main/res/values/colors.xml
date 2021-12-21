@@ -6,7 +6,6 @@
     <color name="CPBG">#FFFFFF</color>
     <color name="CAFG">@color/CP</color>
     <color name="TPBG">@color/TP</color>
-    <color name="CABG">@color/CA</color>
     <color name="CP_WEAK_1">#1600AEEF</color>
     <color name="CA_WEAK_1">#48FFFFFF</color>
 
