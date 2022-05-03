@@ -1,23 +1,21 @@
 package ir.mahdiparastesh.migratio.data
 
-import java.text.Collator
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import ir.mahdiparastesh.migratio.Fun.Companion.countryNames
+import java.text.Collator
 import java.util.*
-import kotlin.collections.HashMap
 
 @Suppress("UNCHECKED_CAST")
 @Entity
 data class Country(
-    @PrimaryKey(autoGenerate = false) var id: Long,
-    @ColumnInfo(name = TAG) var tag: String,
-    @ColumnInfo(name = CONTINENT) var continent: Int,
-    @ColumnInfo(name = ATTRS) var attrs: HashMap<String, String>,
-    @ColumnInfo(name = EXCEPT) var except: HashMap<String, String>
+    @PrimaryKey var id: Long,
+    var tag: String,
+    var continent: Int,
+    var attrs: HashMap<String, String>,
+    var except: HashMap<String, String>
 ) : Parcelable {
     private constructor(parcel: Parcel) : this(
         id = parcel.readLong(),
@@ -37,15 +35,8 @@ data class Country(
 
     override fun describeContents() = 0
 
-    @Suppress("unused")
     companion object {
-        const val COUNTRY = "country"
-        const val ID = "id"
-        const val TAG = "tag"
-        const val CONTINENT = "continent"
-        const val ATTRS = "attrs"
-        const val EXCEPT = "except"
-
+        @Suppress("unused")
         @JvmField
         val CREATOR = object : Parcelable.Creator<Country> {
             override fun createFromParcel(parcel: Parcel) = Country(parcel)

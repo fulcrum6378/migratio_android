@@ -1,70 +1,43 @@
 package ir.mahdiparastesh.migratio.adap
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.Typeface
-import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
-import ir.mahdiparastesh.migratio.Computation
 import ir.mahdiparastesh.migratio.Fun
-import ir.mahdiparastesh.migratio.Fun.Companion.textFont
-import ir.mahdiparastesh.migratio.R
-import ir.mahdiparastesh.migratio.data.Country
+import ir.mahdiparastesh.migratio.Fun.Companion.vish
+import ir.mahdiparastesh.migratio.Panel
+import ir.mahdiparastesh.migratio.databinding.ItemMyConBinding
+import ir.mahdiparastesh.migratio.more.AnyViewHolder
 import kotlin.math.round
 
-class MyConAdap(val c: Context, val list: ArrayList<Computation>, val cons: List<Country>) :
-    RecyclerView.Adapter<MyConAdap.MyViewHolder>() {
+class MyConAdap(val c: Panel) : RecyclerView.Adapter<AnyViewHolder<ItemMyConBinding>>() {
 
-    class MyViewHolder(val v: ConstraintLayout) : RecyclerView.ViewHolder(v)
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        var v = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_my_con, parent, false) as ConstraintLayout
-        val tvName = v[tvNamePos] as TextView
-        val tvScore = v[tvScorePos] as TextView
-
-        // Fonts
-        tvName.setTypeface(textFont, Typeface.BOLD)
-        tvScore.setTypeface(textFont, Typeface.BOLD)
-
-        return MyViewHolder(v)
+    override fun onCreateViewHolder(
+        parent: ViewGroup, viewType: Int
+    ): AnyViewHolder<ItemMyConBinding> {
+        val b = ItemMyConBinding.inflate(c.layoutInflater, parent, false)
+        b.tvName.setTypeface(c.textFont, Typeface.BOLD)
+        b.tvScore.setTypeface(c.textFont, Typeface.BOLD)
+        return AnyViewHolder(b)
     }
 
     @SuppressLint("SetTextI18n")
-    override fun onBindViewHolder(h: MyViewHolder, i: Int) {
-        val tvName = h.v[tvNamePos] as TextView
-        val tvScore = h.v[tvScorePos] as TextView
-        val separator = h.v[separatorPos]
-
-        // Texts
-        tvName.text = "${i + 1}. ${
-            Fun.countryNames()[Computation.findConById(
-                list[i].id,
-                cons
-            )!!.id.toInt()]
+    override fun onBindViewHolder(h: AnyViewHolder<ItemMyConBinding>, i: Int) {
+        h.b.tvName.text = "${i + 1}. ${
+            Fun.countryNames()[c.m.gotCountries!!.find { it.id == c.computations!![i].id }!!.id.toInt()]
         }"
-        tvScore.text = "${round(list[i].score).toInt()}%"//DecimalFormat("#").format(list[i].score)
 
-        // Clicks
-        h.v.setOnClickListener {
-            Toast.makeText(c, "${list[h.layoutPosition].score}%", Toast.LENGTH_SHORT).show()
+        h.b.tvScore.text = "${round(c.computations!![i].score).toInt()}%"
+        //DecimalFormat("#").format(list[i].score)
+
+        h.b.root.setOnClickListener {
+            Toast.makeText(c, "${c.computations!![h.layoutPosition].score}%", Toast.LENGTH_SHORT)
+                .show()
         }
-
-        // Other
-        Fun.vish(separator, i != itemCount - 1)
+        h.b.separator.vish(i != itemCount - 1)
     }
 
-    override fun getItemCount() = list.size
-
-
-    companion object {
-        const val tvNamePos = 0
-        const val tvScorePos = 1
-        const val separatorPos = 2
-    }
+    override fun getItemCount() = c.computations?.size ?: 0
 }

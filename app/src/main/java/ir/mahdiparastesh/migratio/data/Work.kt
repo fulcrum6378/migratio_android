@@ -15,7 +15,9 @@ class Work(
 ) : Thread() {
 
     override fun run() {
-        var db = Room.databaseBuilder(c, Database::class.java, Fun.defDataDB).build()
+        var db = Room.databaseBuilder(c, Database::class.java, Fun.defDataDB)
+            .fallbackToDestructiveMigration()
+            .build()
         var dao = db.dao()
         @Suppress("NON_EXHAUSTIVE_WHEN")
         when (action) {

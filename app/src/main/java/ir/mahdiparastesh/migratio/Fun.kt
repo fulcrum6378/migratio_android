@@ -2,8 +2,10 @@ package ir.mahdiparastesh.migratio
 
 import android.Manifest
 import android.animation.*
-import android.annotation.SuppressLint
-import android.content.*
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Typeface
 import android.net.ConnectivityManager
 import android.net.Network
@@ -12,49 +14,35 @@ import android.os.Build
 import android.os.CountDownTimer
 import android.os.Handler
 import android.text.util.Linkify
-import android.util.DisplayMetrics
 import android.util.JsonReader
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
 import android.view.animation.AnimationUtils
 import android.view.animation.LinearInterpolator
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import ir.mahdiparastesh.migratio.data.*
+import ir.mahdiparastesh.migratio.more.BaseActivity
 import ir.mahdiparastesh.migratio.more.Fonts
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
 import java.nio.charset.Charset
 import java.util.*
 
-@Suppress("UNUSED_PARAMETER", "unused")
 class Fun {
     companion object {
-        @SuppressLint("StaticFieldLeak")
-        lateinit var c: Context
-        lateinit var sp: SharedPreferences
-        lateinit var logoFont: Typeface
-        lateinit var titleFont: Typeface
-        lateinit var textFont: Typeface
-        lateinit var current: AppCompatActivity
-
         const val defDataDB = "data"
         const val td1Dur = 168
         const val doRefreshTime: Long = 86400000// A day
         val ssl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "s" else ""
         val cloudFol = "http${ssl}://migratio.mahdiparastesh.ir/xml/"
-        var dm = DisplayMetrics()
         var censorBreak = 0
         var cm: ConnectivityManager? = null
         var cmCallbackSet = false
         var connected = false
-        var dirLtr = true
 
         val cmCallback = @RequiresApi(Build.VERSION_CODES.M)
         object : ConnectivityManager.NetworkCallback() {
@@ -77,27 +65,6 @@ class Fun {
         }
 
 
-        fun init(that: AppCompatActivity, body: ViewGroup) {
-            c = that.applicationContext// if (!::c.isInitialized)
-            if (!::sp.isInitialized) sp =
-                that.getSharedPreferences("${that.packageName}_preferences", Context.MODE_PRIVATE)
-            dm = that.resources.displayMetrics
-            dirLtr = dir(c, body)
-            current = that
-
-            if (!::logoFont.isInitialized) logoFont = fonts(c, Fonts.LOGO)
-            if (!::titleFont.isInitialized) titleFont = fonts(c, Fonts.TITLE)
-            if (!::textFont.isInitialized) textFont = fonts(c, Fonts.TEXT)
-
-            cm = that.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                if (!cmCallbackSet) cm?.let {
-                    it.registerDefaultNetworkCallback(cmCallback)
-                    cmCallbackSet = true
-                }
-            } else connected = isOnlineOld()
-        }
-
         @Suppress("Deprecation")
         fun isOnlineOld(): Boolean {
             var nwi: NetworkInfo? = null
@@ -105,18 +72,16 @@ class Fun {
             return nwi != null && nwi.isConnected
         }
 
-        fun dp(px: Int = 0) = (dm.density * px.toFloat()).toInt()
-
-        fun vis(v: View, b: Boolean = true) {
-            v.visibility = if (b) View.VISIBLE else View.GONE
+        fun View.vis(b: Boolean = true) {
+            visibility = if (b) View.VISIBLE else View.GONE
         }
 
-        fun vish(v: View, b: Boolean = true) {
-            v.visibility = if (b) View.VISIBLE else View.INVISIBLE
+        fun View.vish(b: Boolean = true) {
+            visibility = if (b) View.VISIBLE else View.INVISIBLE
         }
 
         fun switcher(
-            c: Context, vs: ViewSwitcher, dirLtr: Boolean, animate: Boolean = true,
+            c: BaseActivity, vs: ViewSwitcher, dirLtr: Boolean, animate: Boolean = true,
             exSwitched: String = Select.exSwitchedTo2nd
         ): Boolean {
             val ir = if (dirLtr) R.anim.slide_in_right else R.anim.slide_in_left
@@ -130,7 +95,7 @@ class Fun {
                 AnimationUtils.loadAnimation(c, if (vs.displayedChild == 0) ol else or)
             else null
             vs.displayedChild = if (vs.displayedChild == 0) 1 else 0
-            sp.edit().putBoolean(exSwitched, vs.displayedChild == 1).apply()
+            c.sp.edit().putBoolean(exSwitched, vs.displayedChild == 1).apply()
             return vs.displayedChild == 1
         }
 
@@ -141,13 +106,13 @@ class Fun {
                 interpolator = LinearInterpolator()
                 addListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationStart(animation: Animator?) {
-                        placeHolder?.let { vis(it, false) }
-                        vis(iv)
+                        placeHolder?.vis(false)
+                        iv.vis()
                     }
 
                     override fun onAnimationCancel(animation: Animator?) {
-                        vis(iv, false)
-                        placeHolder?.let { vis(it) }
+                        iv.vis(false)
+                        placeHolder?.vis()
                     }
                 })
                 start()
@@ -179,12 +144,12 @@ class Fun {
         fun now(): Long = Calendar.getInstance().timeInMillis
 
         fun alertDialogue1(
-            that: AppCompatActivity, title: Int, message: Int, font: Typeface,
+            c: BaseActivity, title: Int, message: Int, font: Typeface,
             onOk: DialogInterface.OnClickListener? = null,
             onCancel: DialogInterface.OnCancelListener? = null,
             censorBreaker: Boolean = false
         ): Boolean {
-            AlertDialog.Builder(that, R.style.alertDialogue1).apply {
+            AlertDialog.Builder(c, R.style.alertDialogue1).apply {
                 setTitle(title)
                 setMessage(message)
                 setIcon(R.mipmap.launcher_round)
@@ -192,9 +157,9 @@ class Fun {
                 setOnCancelListener(onCancel)
             }.create().apply {
                 show()
-                fixADButton(that, getButton(AlertDialog.BUTTON_POSITIVE), font)
-                fixADTitle(that, window, font)
-                var tvMsg = fixADMsg(that, window, font)
+                fixADButton(c, getButton(AlertDialog.BUTTON_POSITIVE), font)
+                fixADTitle(c, font)
+                var tvMsg = fixADMsg(c, font)
 
                 // Censor Breaker
                 if (censorBreaker) tvMsg?.setOnClickListener {
@@ -217,13 +182,13 @@ class Fun {
         }
 
         fun alertDialogue2(
-            that: AppCompatActivity, title: Int, message: Int,
+            c: BaseActivity, title: Int, message: Int,
             onYes: DialogInterface.OnClickListener? = null,
             onNo: DialogInterface.OnClickListener? = null,
             onCancel: DialogInterface.OnCancelListener? = null,
-            font: Typeface = textFont
+            font: Typeface = c.textFont
         ): Boolean {
-            AlertDialog.Builder(that, R.style.alertDialogue1).apply {
+            AlertDialog.Builder(c, R.style.alertDialogue1).apply {
                 setTitle(title)
                 setMessage(message)
                 setIcon(R.mipmap.launcher_round)
@@ -232,29 +197,29 @@ class Fun {
                 setOnCancelListener(onCancel)
             }.create().apply {
                 show()
-                fixADButton(that, getButton(AlertDialog.BUTTON_POSITIVE), font, dirLtr)
-                fixADButton(that, getButton(AlertDialog.BUTTON_NEGATIVE), font, !dirLtr)
-                fixADTitle(that, window, font)
-                fixADMsg(that, window, font)
+                fixADButton(c, getButton(AlertDialog.BUTTON_POSITIVE), font, c.dirLtr)
+                fixADButton(c, getButton(AlertDialog.BUTTON_NEGATIVE), font, !c.dirLtr)
+                fixADTitle(c, font)
+                fixADMsg(c, font)
             }
             return true
         }
 
         fun alertDialogue3(
-            that: AppCompatActivity, title: Int, message: String,
+            c: BaseActivity, title: Int, message: String,
             copyable: Boolean, linkify: Boolean = false
         ): Boolean {
-            AlertDialog.Builder(that, R.style.alertDialogue1).apply {
+            AlertDialog.Builder(c, R.style.alertDialogue1).apply {
                 setTitle(title)
                 setMessage(message)
                 setIcon(R.mipmap.launcher_round)
                 setPositiveButton(R.string.ok, null)
             }.create().apply {
                 show()
-                var font = textFont
-                fixADButton(that, getButton(AlertDialog.BUTTON_POSITIVE), font)
-                fixADTitle(that, window, font)
-                var tvMsg = fixADMsg(that, window, font, linkify)
+                var font = c.textFont
+                fixADButton(c, getButton(AlertDialog.BUTTON_POSITIVE), font)
+                fixADTitle(c, font)
+                var tvMsg = fixADMsg(c, font, linkify)
                 if (copyable) tvMsg?.setOnLongClickListener {
                     copyItsText(c, tvMsg)
                     true
@@ -263,37 +228,33 @@ class Fun {
             return true
         }
 
-        fun fixADButton(
-            that: AppCompatActivity, button: Button, font: Typeface, sMargin: Boolean = false
-        ) {
+        fun fixADButton(c: BaseActivity, button: Button, font: Typeface, sMargin: Boolean = false) {
             button.apply {
-                setTextColor(ContextCompat.getColor(that, R.color.CA))
-                setBackgroundColor(ContextCompat.getColor(that, R.color.CP))
+                setTextColor(ContextCompat.getColor(c, R.color.CA))
+                setBackgroundColor(ContextCompat.getColor(c, R.color.CP))
                 typeface = font
-                textSize = that.resources.getDimension(R.dimen.alert1Button) / dm.density
+                textSize = c.resources.getDimension(R.dimen.alert1Button) / c.dm.density
                 if (sMargin) (layoutParams as ViewGroup.MarginLayoutParams).apply {
                     marginStart = textSize.toInt()
                 }
             }
         }
 
-        fun fixADTitle(that: AppCompatActivity, window: Window?, font: Typeface): TextView? {
-            var tvTitle = window?.findViewById<TextView>(R.id.alertTitle)
+        fun fixADTitle(c: BaseActivity, font: Typeface): TextView? {
+            var tvTitle = c.window?.findViewById<TextView>(R.id.alertTitle)
             tvTitle?.setTypeface(font, Typeface.BOLD)
-            tvTitle?.textSize = that.resources.getDimension(R.dimen.alert1Title) / dm.density
+            tvTitle?.textSize = c.resources.getDimension(R.dimen.alert1Title) / c.dm.density
             return tvTitle
         }
 
-        fun fixADMsg(
-            that: AppCompatActivity, window: Window?, font: Typeface, linkify: Boolean = false
-        ): TextView? {
-            var tvMsg = window?.findViewById<TextView>(android.R.id.message)
+        fun fixADMsg(c: BaseActivity, font: Typeface, linkify: Boolean = false): TextView? {
+            var tvMsg = c.window?.findViewById<TextView>(android.R.id.message)
             tvMsg?.typeface = font
             tvMsg?.setLineSpacing(
-                that.resources.getDimension(R.dimen.alert1MsgLine) / dm.density, 0f
+                c.resources.getDimension(R.dimen.alert1MsgLine) / c.dm.density, 0f
             )
-            tvMsg?.textSize = that.resources.getDimension(R.dimen.alert1Msg) / dm.density
-            tvMsg?.setPadding(dp(28), dp(15), dp(28), dp(15))
+            tvMsg?.textSize = c.resources.getDimension(R.dimen.alert1Msg) / c.dm.density
+            tvMsg?.setPadding(c.dp(28), c.dp(15), c.dp(28), c.dp(15))
             if (tvMsg != null && linkify) Linkify.addLinks(tvMsg, Linkify.ALL)
             return tvMsg
         }
@@ -304,32 +265,12 @@ class Fun {
             )
         }
 
-        fun copyItsText(c: Context, tv: TextView, lang: Int = 0) {
+        fun copyItsText(c: Context, tv: TextView) {
             copyText(c, tv.text.toString())
             Toast.makeText(c, R.string.copied, Toast.LENGTH_SHORT).show()
         }
 
-        fun dir(c: Context, body: ViewGroup): Boolean {
-            val dirLtr = c.resources.getBoolean(R.bool.dirLtr)
-            if (!dirLtr) body.layoutDirection = View.LAYOUT_DIRECTION_RTL
-            return dirLtr
-        }
-
-        fun handleTB(that: AppCompatActivity, toolbar: Toolbar, titleFont: Typeface) {
-            that.setSupportActionBar(toolbar)
-            var tbTitle: TextView? = null
-            for (g in 0 until toolbar.childCount) toolbar.getChildAt(g).apply {
-                if (this is TextView &&
-                    this.text.toString() == that.resources.getString(R.string.app_name)
-                ) tbTitle = this
-            }
-            tbTitle?.apply {
-                setTypeface(titleFont, Typeface.BOLD)
-                textSize = that.resources.getDimension(R.dimen.tbTitle) / dm.density
-            }
-        }
-
-        fun onLoad(view: View, func: Function): CountDownTimer =
+        /*fun onLoad(view: View, func: Function): CountDownTimer =
             object : CountDownTimer(10000, 50) {
                 override fun onFinish() {}
                 override fun onTick(millisUntilFinished: Long) {
@@ -337,32 +278,14 @@ class Fun {
                     func.execute()
                     this.cancel()
                 }
-            }.start()
-
-        fun defaultMyCriteria(gotCriteria: List<Criterion>, handler: Handler?) {
-            sp.edit().putBoolean(Panel.exRepair, false).apply()
-            val gotMyCriteria = ArrayList<MyCriterion>()
-            for (i in gotCriteria) {
-                var good = i.good
-                if (good == "") good = i.medi
-                gotMyCriteria.add(MyCriterion(0, i.tag, false, good, 100))
-            }
-            Work(
-                c, handler, Works.CLEAR_AND_INSERT_ALL, Types.MY_CRITERION,
-                listOf(gotMyCriteria, Types.MY_CRITERION.ordinal, Works.NONE.ordinal)
-                // GIVING THE DESTINATION "Types.MY_CRITERION.ordinal" IS ESSENTIAL;
-                // BECAUSE IF YOU DO OTHERWISE, THE RESULT WILL BE SENT TO DEST: 0.
-            ).start()
-        }
+            }.start()*/
 
         fun repairMyCriteria(
-            cris: List<Criterion>,
-            oldMyCris: List<MyCriterion>,
-            handler: Handler?
+            c: BaseActivity, cris: List<Criterion>, oldMyCris: List<MyCriterion>, handler: Handler?
         ) {
             val newMyCris = ArrayList<MyCriterion>()
             for (i in cris) {
-                var findIn = Computation.findMyCriByTag(i.tag, oldMyCris)
+                var findIn = oldMyCris.find { it.tag == i.tag }
                 if (findIn != null) newMyCris.add(
                     MyCriterion(0, i.tag, findIn.isOn, findIn.good, findIn.importance)
                 ) else {
@@ -383,29 +306,9 @@ class Fun {
             )
         )
 
-        fun findChildrenByClass(viewGroup: ViewGroup, clazz: Class<*>) =
-            gatherChildrenByClass(viewGroup, clazz, ArrayList())
-
-        fun gatherChildrenByClass(
-            viewGroup: ViewGroup, clazz: Class<*>, childrenFound: ArrayList<View>
-        ): ArrayList<View> {
-            for (i in 0 until viewGroup.childCount) {
-                val child = viewGroup.getChildAt(i)
-                if (clazz.isAssignableFrom(child::class.java)) childrenFound.add(child)
-                if (child is ViewGroup)
-                    gatherChildrenByClass(child, clazz, childrenFound)
-            }
-            return childrenFound
-        }
-
         fun z(n: Int): String {
             var s = n.toString()
             return if (s.length == 1) "0$s" else s
         }
-    }
-
-
-    interface Function {
-        fun execute()
     }
 }

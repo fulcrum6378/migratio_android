@@ -6,21 +6,20 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
-import ir.mahdiparastesh.migratio.Fun
-import ir.mahdiparastesh.migratio.Fun.Companion.c
 import ir.mahdiparastesh.migratio.Fun.Companion.z
 import ir.mahdiparastesh.migratio.R
 import ir.mahdiparastesh.migratio.Select
-import java.io.*
+import ir.mahdiparastesh.migratio.more.BaseActivity
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.util.*
 
-class Exporter(that: AppCompatActivity) {
+class Exporter(private val c: BaseActivity) {
     var pack: Exported? = null
 
     private var exportLauncher: ActivityResultLauncher<Intent> =
-        that.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        c.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode != Activity.RESULT_OK) return@registerForActivityResult
             val bExp = try {
                 c.contentResolver.openFileDescriptor(it.data!!.data!!, "w")?.use { des ->
@@ -37,7 +36,7 @@ class Exporter(that: AppCompatActivity) {
             ).show()
         }
     private var importLauncher: ActivityResultLauncher<Intent> =
-        that.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        c.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode != Activity.RESULT_OK) return@registerForActivityResult
             var data: String? = null
             try {
@@ -62,7 +61,7 @@ class Exporter(that: AppCompatActivity) {
                 Toast.makeText(c, R.string.importReadError, Toast.LENGTH_LONG).show()
                 return@registerForActivityResult
             }
-            Fun.sp.edit().apply {
+            c.sp.edit().apply {
                 putStringSet(Select.exMyCountries, imported.MYCON)
                 apply()
             }
@@ -78,8 +77,8 @@ class Exporter(that: AppCompatActivity) {
     }
 
     fun export(): Boolean {
-        if (Select.myCountries == null || Select.myCriteria == null) return true
-        pack = Exported(Select.myCountries!!, Select.myCriteria!!)
+        if (c.m.myCountries == null || c.m.myCriteria == null) return true
+        pack = Exported(c.m.myCountries!!, c.m.myCriteria!!)
         val d = Calendar.getInstance()
         val date =
             "${d[Calendar.YEAR]}-${z(d[Calendar.MONTH] + 1)}-${z(d[Calendar.DAY_OF_MONTH])}"

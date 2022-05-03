@@ -9,16 +9,18 @@
     tools:ignore="MissingConstraints,SpUsage">
 
     <View
-        style="@style/shadow_1"
+        style="@style/shadow"
         android:layout_height="1dp"
         android:alpha="0.3"
         android:rotationX="180" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clickable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
+            android:id="@+id/tvName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@drawable/hover_tpbg_to_cp_weak_1"
@@ -35,6 +37,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switcher"
             android:layout_width="55dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -42,35 +45,50 @@
             android:layout_marginBottom="5dp"
             android:checked="false"
             android:theme="@style/switch1"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvName"
+            app:layout_constraintTop_toTopOf="@id/tvName" />
 
 
         <LinearLayout
+            android:id="@+id/overflow"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical"
             android:visibility="gone"
-            android:weightSum="9">
+            android:weightSum="9"
+            app:layout_constraintTop_toBottomOf="@id/tvName">
 
-            <androidx.constraintlayout.widget.ConstraintLayout style="@style/criOption">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/ofo1"
+                style="@style/criOption">
 
-                <View style="@style/criRadio" />
+                <View
+                    android:id="@+id/ofo1Sw"
+                    style="@style/criRadio" />
 
                 <TextView
+                    android:id="@+id/ofo1TV"
                     style="@style/criRadioText"
                     android:text="@string/criOption1" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout style="@style/criOption">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/ofo2"
+                style="@style/criOption">
 
-                <View style="@style/criRadio" />
+                <View
+                    android:id="@+id/ofo2Sw"
+                    style="@style/criRadio" />
 
                 <TextView
+                    android:id="@+id/ofo2TV"
                     style="@style/criRadioText"
                     android:paddingEnd="110dp"
                     android:text="@string/criOption2" />
 
                 <EditText
+                    android:id="@+id/ofo2ET"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:background="@drawable/cri_closer_to"
@@ -88,20 +106,27 @@
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout style="@style/criOption">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/ofo3"
+                style="@style/criOption">
 
-                <View style="@style/criRadio" />
+                <View
+                    android:id="@+id/ofo3Sw"
+                    style="@style/criRadio" />
 
                 <TextView
+                    android:id="@+id/ofo3TV"
                     style="@style/criRadioText"
                     android:text="@string/criOption3" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/ofo4"
                 style="@style/criOption"
                 android:layout_weight="3">
 
                 <TextView
+                    android:id="@+id/ofo4SkInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="7dp"
@@ -113,6 +138,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <SeekBar
+                    android:id="@+id/ofo4Sk"
                     style="@style/parentConstraint"
                     android:layout_width="match_parent"
                     android:layout_height="19dp"
@@ -126,7 +152,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
-        style="@style/shadow_1"
+        style="@style/shadow"
         android:layout_height="4dp"
         android:alpha="0.3" />
 </LinearLayout>

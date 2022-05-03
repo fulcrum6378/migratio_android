@@ -2,18 +2,16 @@ package ir.mahdiparastesh.migratio.data
 
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Comparator
 
 @Entity
 data class MyCriterion(
     @PrimaryKey(autoGenerate = true) var id: Long,
-    @ColumnInfo(name = TAG) var tag: String,
-    @ColumnInfo(name = IS_ON) var isOn: Boolean,
-    @ColumnInfo(name = GOOD) var good: String,
-    @ColumnInfo(name = IMPORTANCE) var importance: Int
+    var tag: String,
+    var isOn: Boolean,
+    var good: String,
+    var importance: Int
 ) : Parcelable {
     private constructor(parcel: Parcel) : this(
         id = parcel.readLong(),
@@ -33,15 +31,9 @@ data class MyCriterion(
 
     override fun describeContents() = 0
 
-    @Suppress("unused", "SpellCheckingInspection")
+    @Suppress("SpellCheckingInspection")
     companion object {
-        const val MYCRITERION = "mycriterion"
-        const val ID = "id"
-        const val TAG = "tag"
-        const val IS_ON = "isOn"
-        const val GOOD = "good"
-        const val IMPORTANCE = "importance"
-
+        @Suppress("unused")
         @JvmField
         val CREATOR = object : Parcelable.Creator<MyCriterion> {
             override fun createFromParcel(parcel: Parcel) = MyCriterion(parcel)

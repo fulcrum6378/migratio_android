@@ -11,7 +11,7 @@
 
     <!-- GLOBAL -->
     <color name="TP">#00000000</color>
-    <color name="shadow_1">#55000000</color>
+    <color name="shadow">#55000000</color>
     <color name="seekBar1">@color/CP</color>
     <color name="seekBar1BG">@color/CP</color>
     <color name="migratioSearchView1">@color/CA</color>

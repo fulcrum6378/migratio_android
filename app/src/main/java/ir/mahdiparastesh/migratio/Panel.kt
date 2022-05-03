@@ -11,88 +11,41 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.recyclerview.widget.RecyclerView
-import ir.mahdiparastesh.migratio.Fun.Companion.c
+import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import ir.mahdiparastesh.migratio.Fun.Companion.connected
-import ir.mahdiparastesh.migratio.Fun.Companion.defaultMyCriteria
-import ir.mahdiparastesh.migratio.Fun.Companion.dm
-import ir.mahdiparastesh.migratio.Fun.Companion.logoFont
 import ir.mahdiparastesh.migratio.Fun.Companion.now
-import ir.mahdiparastesh.migratio.Fun.Companion.sp
-import ir.mahdiparastesh.migratio.Fun.Companion.textFont
-import ir.mahdiparastesh.migratio.Fun.Companion.titleFont
 import ir.mahdiparastesh.migratio.Fun.Companion.vis
 import ir.mahdiparastesh.migratio.adap.MyConAdap
 import ir.mahdiparastesh.migratio.data.*
 import ir.mahdiparastesh.migratio.databinding.PanelBinding
+import ir.mahdiparastesh.migratio.more.BaseActivity
+import java.util.*
 import kotlin.math.round
-import ir.mahdiparastesh.migratio.data.Criterion as Criterion1
-
-// adb connect 192.168.1.20:
 
 @Suppress("UNCHECKED_CAST")
-class Panel : AppCompatActivity() {
+class Panel : BaseActivity() {
     private lateinit var b: PanelBinding
-    private lateinit var toolbar: Toolbar
-
-    var gotCriteria: List<Criterion1>? = null
-    var myCriteria: List<MyCriterion>? = null
-    var tapToExit = false
-    var loaded = false
+    var allComputations: List<Computation>? = null
+    var computations: ArrayList<Computation>? = null
     var canGoToSelect = true
-    var myCountries: MutableSet<String>? = null
     var anReload: ObjectAnimator? = null
     var selectGuide: AnimatorSet? = null
-    var showingHelp = false
-    var showingAbout = false
     var computeSuspendedForRepair = false
+    var rvScrollY = 0
 
     companion object {
-        lateinit var rvMyCon: RecyclerView
         lateinit var handler: Handler
-
         const val exLastUpdated = "lastUpdated"
         const val exCensor = "censor"
         const val exRepair = "repair"
-        var gotCountries: List<Country>? = null
-
-        @SuppressLint("StaticFieldLeak")
-        var myconAdapter: MyConAdap? = null
-        var rvScrollY = 0
-        var allComputations: List<Computation>? = null
-        var computations: ArrayList<Computation>? = null
-
-        fun search(text: String) {
-            if (allComputations == null || computations == null || gotCountries == null || myconAdapter == null) return
-            computations = ArrayList()
-            for (p in allComputations!!)
-                if (Fun.countryNames()[
-                            Computation.findConById(p.id, gotCountries!!)!!.id.toInt()
-                    ].contains(text, true)
-                ) computations!!.add(p)
-            arrange(0)
-        }
-
-        fun arrange(scrollY: Int) {
-            myconAdapter = MyConAdap(c, computations!!, gotCountries!!)
-            rvMyCon.adapter = myconAdapter
-            rvMyCon.scrollBy(0, scrollY)
-        }
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         b = PanelBinding.inflate(layoutInflater)
         setContentView(b.root)
-        Fun.init(this, b.root)
 
-        toolbar = findViewById(R.id.toolbar)
-        rvMyCon = findViewById(R.id.rvMyCon)
-
-        rvScrollY = 0
         handler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 when (msg.what) {
@@ -103,28 +56,28 @@ class Panel : AppCompatActivity() {
                         ).start()
                         Types.CRITERION.ordinal -> Work(
                             c, handler, Works.CLEAR_AND_INSERT_ALL, Types.CRITERION,
-                            listOf(msg.obj as List<Criterion1>, Types.CRITERION.ordinal)
+                            listOf(msg.obj as List<Criterion>, Types.CRITERION.ordinal)
                         ).start()
                     }
 
                     Works.GET_ALL.ordinal -> when (msg.arg1) {
                         Works.CHECK.ordinal -> when (msg.arg2) {
                             Types.COUNTRY.ordinal -> {
-                                gotCountries = msg.obj as List<Country>
-                                if (gotCountries.isNullOrEmpty() || doRefreshData()) {
+                                m.gotCountries = msg.obj as List<Country>
+                                if (m.gotCountries.isNullOrEmpty() || doRefreshData()) {
                                     if (connected) Parse(c, handler, Types.COUNTRY).start()
                                     else noInternet()
                                 } else postLoading()
                             }
                             Types.CRITERION.ordinal -> {
-                                gotCriteria = msg.obj as List<Criterion1>
-                                if (gotCriteria.isNullOrEmpty() || doRefreshData()) {
+                                m.gotCriteria = msg.obj as List<Criterion>
+                                if (m.gotCriteria.isNullOrEmpty() || doRefreshData()) {
                                     if (connected) Parse(c, handler, Types.CRITERION).start()
                                     else noInternet()
-                                } else postLoading()// defaultMyCriteria() is MESSY here
+                                } else postLoading() // defaultMyCriteria() is MESSY here
                             }
                             Types.MY_CRITERION.ordinal -> {
-                                myCriteria = msg.obj as List<MyCriterion>
+                                m.myCriteria = ArrayList(msg.obj as List<MyCriterion>)
                                 if (!needsRepair(true)) compute(rvScrollY)
                             }
                         }
@@ -132,14 +85,14 @@ class Panel : AppCompatActivity() {
 
                     Works.CLEAR_AND_INSERT_ALL.ordinal -> when (msg.arg1) {
                         Types.COUNTRY.ordinal -> {
-                            gotCountries = msg.obj as List<Country>
+                            m.gotCountries = msg.obj as List<Country>
                             if (dataLoaded()) loaded()
                             postLoading(true)
                         }
                         Types.CRITERION.ordinal -> {
-                            gotCriteria = msg.obj as List<Criterion1>
-                            if (myCriteria.isNullOrEmpty())
-                                defaultMyCriteria(gotCriteria!!, handler)
+                            m.gotCriteria = msg.obj as List<Criterion>
+                            if (m.myCriteria.isNullOrEmpty())
+                                defaultMyCriteria(m.gotCriteria!!, handler)
                             else sp.edit().putBoolean(exRepair, true).apply()
                             postLoading(true)
                         }
@@ -156,8 +109,6 @@ class Panel : AppCompatActivity() {
                 }
             }
         }
-        restoration(savedInstanceState)
-
 
         // Loading
         b.load.setOnClickListener { }
@@ -172,8 +123,8 @@ class Panel : AppCompatActivity() {
                 Parse(c, handler, Types.CRITERION).start()
             } else noInternet()
         }
-        if (loaded) b.root.removeView(b.load)
-        else if (gotCountries == null || gotCriteria == null) {
+        if (m.loaded) b.root.removeView(b.load)
+        else if (m.gotCountries == null || m.gotCriteria == null) {
             Work(
                 c, handler, Works.GET_ALL, Types.COUNTRY,
                 listOf(Works.CHECK.ordinal, Types.COUNTRY.ordinal)
@@ -183,17 +134,12 @@ class Panel : AppCompatActivity() {
                 listOf(Works.CHECK.ordinal, Types.CRITERION.ordinal)
             ).start()
         }
-        Fun.handleTB(this, toolbar, titleFont)
 
         // Go to Select
         b.goToSelect.setOnClickListener {
-            if (!canGoToSelect || gotCountries == null || gotCriteria == null)
+            if (!canGoToSelect || m.gotCountries == null || m.gotCriteria == null)
                 return@setOnClickListener
-            startActivity(
-                Intent(c, Select::class.java)
-                    .putExtra("countries", gotCountries!!.toTypedArray())
-                    .putExtra("criteria", gotCriteria!!.toTypedArray())
-            )
+            startActivity(Intent(c, Select::class.java))
             canGoToSelect = false
             object : CountDownTimer(1000, 1000) {
                 override fun onTick(p0: Long) {}
@@ -206,51 +152,77 @@ class Panel : AppCompatActivity() {
 
         // Help
         b.tvRVMCE.setOnClickListener { help() }
+        if (m.showingHelp) help()
+        if (m.showingAbout) about()
     }
 
     override fun onResume() {
         super.onResume()
-
-        // List (DOESN'T NEED INTERNET!)
-        myCountries = sp.getStringSet(Select.exMyCountries, null)
-        /*object : CountDownTimer(5000, 50) {
-            override fun onFinish() {}
-            override fun onTick(millisUntilFinished: Long) {
-                if (myCountries.isNullOrEmpty()) return
-                cancel()
-            }
-        }.start()*/
+        m.myCountries = sp.getStringSet(Select.exMyCountries, null)
         Work(
             c, handler, Works.GET_ALL, Types.MY_CRITERION,
             listOf(Works.CHECK.ordinal, Types.MY_CRITERION.ordinal)
         ).start()
-
-        // Other
         canGoToSelect = true
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.panel, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        val ret = super.onPrepareOptionsMenu(menu)
+        (toolbar.menu.findItem(R.id.pmSearch)?.actionView as SearchView?)?.apply {
+            findViewById<SearchView.SearchAutoComplete>(androidx.appcompat.R.id.search_src_text)
+                ?.setTextColor(ContextCompat.getColor(context, R.color.migratioSearchView1))
+
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String) = true
+
+                @SuppressLint("NotifyDataSetChanged")
+                override fun onQueryTextChange(newText: String): Boolean {
+                    if (allComputations == null || computations == null || m.gotCountries == null ||
+                        b.rvMyCon.adapter == null
+                    ) return true
+                    computations = ArrayList()
+                    for (p in allComputations!!)
+                        if (Fun.countryNames()[
+                                    m.gotCountries!!.find { it.id == p.id }!!.id.toInt()
+                            ].contains(newText, true)
+                        ) computations!!.add(p)
+                    arrange(0)
+                    return true
+                }
+            })
+        }
+        return ret
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.pmSearch -> true
+        R.id.pmRefresh -> {
+            refresh(); true; }
+        R.id.pmShareResults -> {
+            if (allComputations != null && m.gotCountries != null)
+                startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_SUBJECT, resources.getString(R.string.shareResSubject))
+                    putExtra(Intent.EXTRA_TEXT, share())
+                }, resources.getString(R.string.shareResChooser)))
+            true
+        }
+        R.id.pmHelp -> help()
+        R.id.pmAbout -> about()
+        else -> super.onOptionsItemSelected(item)
     }
 
     override fun onPause() {
         super.onPause()
-        rvScrollY = rvMyCon.computeVerticalScrollOffset()
+        rvScrollY = b.rvMyCon.computeVerticalScrollOffset()
     }
 
-    override fun onSaveInstanceState(state: Bundle) {
-        state.putBoolean("loaded", loaded)
-        state.putBoolean("showingHelp", showingHelp)
-        state.putBoolean("showingAbout", showingAbout)
-        if (gotCountries != null)
-            state.putParcelableArray("gotCountries", gotCountries!!.toTypedArray())
-        if (gotCriteria != null)
-            state.putParcelableArray("gotCriteria", gotCriteria!!.toTypedArray())
-        state.putInt("rvScrollY", rvMyCon.scrollY)
-        super.onSaveInstanceState(state)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        restoration(savedInstanceState)
-    }
-
+    var tapToExit = false
     override fun onBackPressed() {
         if (!tapToExit) {
             Toast.makeText(c, R.string.tapToExit, Toast.LENGTH_LONG).show()
@@ -268,43 +240,7 @@ class Panel : AppCompatActivity() {
         }
         moveTaskToBack(true)
         Process.killProcess(Process.myPid())
-        kotlin.system.exitProcess(1)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.panel, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.pmSearch -> true
-        R.id.pmRefresh -> {
-            refresh(); true
-        }
-        R.id.pmShareResults -> {
-            if (allComputations != null && gotCountries != null)
-                startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_SUBJECT, resources.getString(R.string.shareResSubject))
-                    putExtra(Intent.EXTRA_TEXT, share())
-                }, resources.getString(R.string.shareResChooser)))
-            true
-        }
-        R.id.pmHelp -> help()
-        R.id.pmAbout -> about()
-        else -> super.onOptionsItemSelected(item)
-    }
-
-
-    fun restoration(state: Bundle?) {
-        if (state == null) return
-        loaded = state.getBoolean("loaded", false)
-        if (state.getBoolean("showingHelp", false)) help()
-        if (state.getBoolean("showingAbout", false)) about()
-        if (gotCountries == null)
-            gotCountries = state.getParcelableArray("gotCountries")?.toList() as List<Country>
-        if (gotCriteria == null)
-            gotCriteria = state.getParcelableArray("gotCriteria")?.toList() as List<Criterion1>
+        kotlin.system.exitProcess(0)
     }
 
     fun refresh() {
@@ -314,12 +250,14 @@ class Panel : AppCompatActivity() {
         }
     }
 
-    fun dataLoaded() = !gotCountries.isNullOrEmpty() && !gotCriteria.isNullOrEmpty()
+    fun dataLoaded() = !m.gotCountries.isNullOrEmpty() && !m.gotCriteria.isNullOrEmpty()
 
     fun loaded() {
-        if (loaded) return
-        loaded = true
-        ObjectAnimator.ofFloat(b.load, "translationX", -dm.widthPixels * 1.5f).apply {
+        if (m.loaded) return
+        m.loaded = true
+        ObjectAnimator.ofFloat(
+            b.load, "translationX", -dm.widthPixels * 1.5f
+        ).apply {
             startDelay = 1110
             duration = 870
             addListener(object : AnimatorListenerAdapter() {
@@ -333,26 +271,34 @@ class Panel : AppCompatActivity() {
 
     fun noInternet() {
         Toast.makeText(c, R.string.noInternet, Toast.LENGTH_SHORT).show()
-        vis(b.logoText, false)
-        vis(b.logoReload)
+        b.logoText.vis(false)
+        b.logoReload.vis()
     }
 
     fun postLoading(didUpdate: Boolean = false) {
+        if (m.gotCountries != null) {
+            Collections.sort(m.gotCountries!!, Country.Companion.SortCon(1))
+        }
+        if (m.gotCriteria != null) {
+            Collections.sort(m.gotCriteria!!, Criterion.Companion.SortCri(1))
+            if (sp.getBoolean(exCensor, true))
+                m.gotCriteria = m.gotCriteria!!.filter { it.censor == 0 }
+        }
         if (didUpdate) sp.edit().apply {
             putLong(exLastUpdated, now())
             apply()
         }
         if (dataLoaded()) loaded()
-        vis(b.loading, false)
+        b.loading.vis(false)
         if (!needsRepair(true)) compute()
     }
 
     fun needsRepair(computeAfter: Boolean = false): Boolean {
-        if (myCriteria == null || gotCriteria == null) return true
+        if (m.myCriteria == null || m.gotCriteria == null) return true
         var rut = sp.getBoolean(exRepair, false)
         if (rut) {
             computeSuspendedForRepair = computeAfter
-            Fun.repairMyCriteria(gotCriteria!!, myCriteria!!, handler)
+            Fun.repairMyCriteria(this, m.gotCriteria!!, m.myCriteria!!, handler)
         }
         return rut
     }
@@ -360,12 +306,12 @@ class Panel : AppCompatActivity() {
     fun doRefreshData() = (now() - sp.getLong(exLastUpdated, 0)) > Fun.doRefreshTime
 
     fun compute(scrollY: Int = 0) {
-        if (myCountries.isNullOrEmpty() || gotCountries.isNullOrEmpty() ||
-            gotCriteria.isNullOrEmpty() || myCriteria.isNullOrEmpty()
+        if (m.myCountries.isNullOrEmpty() || m.gotCountries.isNullOrEmpty() ||
+            m.gotCriteria.isNullOrEmpty() || m.myCriteria.isNullOrEmpty()
         ) {
             resetMyCon(); return; }
         var atLeastOneCri = false
-        for (mycri in myCriteria!!) if (mycri.isOn) atLeastOneCri = true
+        for (mycri in m.myCriteria!!) if (mycri.isOn) atLeastOneCri = true
         if (!atLeastOneCri) {
             resetMyCon(); return; }
 
@@ -374,48 +320,56 @@ class Panel : AppCompatActivity() {
         b.goToSelect.scaleX = 1f
         b.goToSelect.scaleY = 1f
 
-        vis(b.rvMyConEmpty, false)
+        b.rvMyConEmpty.vis(false)
         allComputations =
-            Computation.compute(gotCountries!!, gotCriteria!!, myCountries!!.toList(), myCriteria!!)
+            Computation.compute(
+                m.gotCountries!!,
+                m.gotCriteria!!,
+                m.myCountries!!.toList(),
+                m.myCriteria!!
+            )
         if (allComputations == null) return
         computations = allComputations!!.toCollection(ArrayList())
         arrange(scrollY)
     }
 
+    fun arrange(scrollY: Int) {
+        b.rvMyCon.adapter = MyConAdap(this)
+        b.rvMyCon.scrollBy(0, scrollY)
+    }
+
     fun resetMyCon() {
-        vis(b.rvMyConEmpty)
-        myconAdapter = null
-        rvMyCon.adapter = null
+        b.rvMyConEmpty.vis()
+        b.rvMyCon.adapter = null
     }
 
     fun share(): String {
-        if (allComputations == null || gotCountries == null) return ""
+        if (allComputations == null || m.gotCountries == null) return ""
         val sb = StringBuilder()
         for (p in allComputations!!.indices)
             sb.append(
                 "${p + 1}. ${
-                    Fun.countryNames()[Computation.findConById(
-                        allComputations!![p].id, gotCountries!!
-                    )!!.id.toInt()]
+                    Fun.countryNames()[m.gotCountries!!
+                        .find { it.id == allComputations!![p].id }!!.id.toInt()]
                 } (${round(allComputations!![p].score).toInt()}%)\n"
             )
         return sb.toString()
     }
 
     fun help(): Boolean {
-        if (showingHelp) return false
-        showingHelp = true
-        Fun.alertDialogue1(this, R.string.pmHelp, R.string.pHelp, textFont,
-            { _, _ -> showingHelp = false }, { showingHelp = false }
+        if (m.showingHelp) return false
+        m.showingHelp = true
+        Fun.alertDialogue1(this, R.string.pmHelp, R.string.pHelp,
+            textFont, { _, _ -> m.showingHelp = false }, { m.showingHelp = false }
         )
         return true
     }
 
     fun about(): Boolean {
-        if (showingAbout) return false
-        showingAbout = true
-        Fun.alertDialogue1(this, R.string.pmAbout, R.string.about, textFont,
-            { _, _ -> showingAbout = false }, { showingAbout = false }
+        if (m.showingAbout) return false
+        m.showingAbout = true
+        Fun.alertDialogue1(this, R.string.pmAbout, R.string.about,
+            textFont, { _, _ -> m.showingAbout = false }, { m.showingAbout = false }
         )
         return true
     }

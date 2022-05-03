@@ -4,7 +4,6 @@ import ir.mahdiparastesh.migratio.data.Country
 import ir.mahdiparastesh.migratio.data.Criterion
 import ir.mahdiparastesh.migratio.data.MyCriterion
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.abs
 
 class Computation(val id: Long, val score: Double) {
@@ -26,7 +25,7 @@ class Computation(val id: Long, val score: Double) {
             val minAndMax = ArrayList<DoubleArray>()
             for (mycri in myCris) {
                 val allVals = ArrayList<Double>()
-                val crit = findCriByTag(mycri.tag, cris)!!
+                val crit = cris.find { it.tag == mycri.tag }!!
                 for (con in cons) compileValue(con, crit, cons).apply {
                     allVals.add(
                         if (mycri.good == "+" || mycri.good == "-") this
@@ -43,13 +42,13 @@ class Computation(val id: Long, val score: Double) {
             // Get mean scores in my criteria for each country
             val meanScores = ArrayList<Double>()
             for (mycon in myCons) {
-                val myCon = findConByTag(mycon, cons)!!
+                val myCon = cons.find { it.tag == mycon }!!
 
                 // Scores Without Importance Adjustment
                 val scoresNoImport = ArrayList<Double>()
                 for (mycri in myCris.indices) {
                     val notReadyVal = compileValue(
-                        myCon, findCriByTag(myCris[mycri].tag, cris)!!, cons
+                        myCon, cris.find { it.tag == myCris[mycri].tag }!!, cons
                     )
                     val readyVal =
                         if (myCris[mycri].good != "-" && myCris[mycri].good != "+")
@@ -85,7 +84,7 @@ class Computation(val id: Long, val score: Double) {
             val list = ArrayList<Computation>()
             for (mycon in myCons.indices) list.add(
                 Computation(
-                    findConByTag(myCons[mycon], cons)!!.id,
+                    cons.find { it.tag == myCons[mycon] }!!.id,
                     relativeScore(
                         Collections.min(meanScores),
                         Collections.max(meanScores),
@@ -108,31 +107,7 @@ class Computation(val id: Long, val score: Double) {
 
         fun safeGood(mycri: MyCriterion, cris: List<Criterion>) =
             if (mycri.good != "") mycri.good.toDouble()
-            else findCriByTag(mycri.tag, cris)!!.medi.toDouble()
-
-        fun findConById(id: Long, list: List<Country>): Country? {
-            var con: Country? = null
-            for (i in list) if (i.id == id) con = i
-            return con
-        }
-
-        fun findConByTag(tag: String, list: List<Country>): Country? {
-            var con: Country? = null
-            for (i in list) if (i.tag == tag) con = i
-            return con
-        }
-
-        fun findCriByTag(tag: String, list: List<Criterion>): Criterion? {
-            var cri: Criterion? = null
-            for (i in list) if (i.tag == tag) cri = i
-            return cri
-        }
-
-        fun findMyCriByTag(tag: String, list: List<MyCriterion>): MyCriterion? {
-            var myCri: MyCriterion? = null
-            for (i in list) if (i.tag == tag) myCri = i
-            return myCri
-        }
+            else cris.find { it.tag == mycri.tag }!!.medi.toDouble()
 
         fun compileValue(myCon: Country, myCri: Criterion, cons: List<Country>): Double {
             var value = myCon.attrs[myCri.tag]!!
@@ -141,7 +116,7 @@ class Computation(val id: Long, val score: Double) {
                     val split = myCon.except[myCri.tag]!!.split("+")
                     val estimation = ArrayList<Double>()
                     for (ss in split)
-                        estimation.add(compileValue(findConByTag(ss, cons)!!, myCri, cons))
+                        estimation.add(compileValue(cons.find { it.tag == ss }!!, myCri, cons))
                     var estimate = estimation[0]
                     if (estimation.size > 1) {
                         for (es in estimation) estimate += es

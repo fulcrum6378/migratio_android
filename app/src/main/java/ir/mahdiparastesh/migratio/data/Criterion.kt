@@ -2,7 +2,6 @@ package ir.mahdiparastesh.migratio.data
 
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import ir.mahdiparastesh.migratio.Fun
@@ -11,14 +10,14 @@ import java.util.*
 
 @Entity
 data class Criterion(
-    @PrimaryKey(autoGenerate = false) var id: Long,
-    @ColumnInfo(name = TAG) var tag: String,
-    @ColumnInfo(name = NAME) var name: String,
-    @ColumnInfo(name = TYPE) var type: String,
-    @ColumnInfo(name = GOOD) var good: String,
-    @ColumnInfo(name = MEDI) var medi: String,
-    @ColumnInfo(name = CENSOR) var censor: Int,
-    @ColumnInfo(name = REFERENCE) var reference: String
+    @PrimaryKey var id: Long,
+    var tag: String,
+    var name: String,
+    var type: String,
+    var good: String,
+    var medi: String,
+    var censor: Int,
+    var reference: String
 ) : Parcelable {
     private constructor(parcel: Parcel) : this(
         id = parcel.readLong(),
@@ -56,18 +55,8 @@ data class Criterion(
         }]
     }
 
-    @Suppress("unused")
     companion object {
-        const val CRITERION = "criterion"
-        const val ID = "id"
-        const val TAG = "tag"
-        const val NAME = "name"
-        const val TYPE = "type"
-        const val GOOD = "good"
-        const val MEDI = "medi"
-        const val CENSOR = "censor"
-        const val REFERENCE = "reference"
-
+        @Suppress("unused")
         @JvmField
         val CREATOR = object : Parcelable.Creator<Criterion> {
             override fun createFromParcel(parcel: Parcel) = Criterion(parcel)
@@ -80,7 +69,6 @@ data class Criterion(
             "worisk", "gpeace", "dnganm", "suicid", "sunshn", "frerel", "frebio", "fredrg",
             "fresex", "migacc", "racism", "intusr", "inflat", "unempl", "conscr"
         )
-
 
         class SortCri(val by: Int = 0) : Comparator<Criterion> {
             override fun compare(a: Criterion, b: Criterion) = when (by) {

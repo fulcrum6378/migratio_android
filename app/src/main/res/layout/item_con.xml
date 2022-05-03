@@ -7,12 +7,13 @@
     android:paddingTop="4dp">
 
     <View
-        style="@style/shadow_1"
+        style="@style/shadow"
         android:layout_height="1dp"
         android:alpha="0.3"
         android:rotationX="180" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clickable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/hover_tpbg_to_cp_weak_1">
@@ -31,6 +32,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
+                android:id="@+id/tvName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/CAFG"
@@ -38,6 +40,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tvCont"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/CAFG"
@@ -45,6 +48,7 @@
         </LinearLayout>
 
         <View
+            android:id="@+id/check"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginTop="5dp"
@@ -57,7 +61,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
-        style="@style/shadow_1"
+        style="@style/shadow"
         android:layout_height="4dp"
         android:alpha="0.3" />
 </LinearLayout>

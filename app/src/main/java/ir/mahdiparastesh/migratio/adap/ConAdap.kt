@@ -1,66 +1,45 @@
 package ir.mahdiparastesh.migratio.adap
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.Typeface
 import android.graphics.drawable.TransitionDrawable
-import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
 import ir.mahdiparastesh.migratio.Fun
 import ir.mahdiparastesh.migratio.Fun.Companion.td1Dur
-import ir.mahdiparastesh.migratio.Fun.Companion.textFont
-import ir.mahdiparastesh.migratio.R
 import ir.mahdiparastesh.migratio.Select
 import ir.mahdiparastesh.migratio.Select.Companion.conCheck
-import ir.mahdiparastesh.migratio.data.Country
+import ir.mahdiparastesh.migratio.data.Continents
 import ir.mahdiparastesh.migratio.data.Works
+import ir.mahdiparastesh.migratio.databinding.ItemConBinding
+import ir.mahdiparastesh.migratio.more.AnyViewHolder
+import ir.mahdiparastesh.migratio.more.BaseActivity
 
-class ConAdap(val c: Context, val list: List<Country>) :
-    RecyclerView.Adapter<ConAdap.MyViewHolder>() {
+class ConAdap(val c: BaseActivity) : RecyclerView.Adapter<AnyViewHolder<ItemConBinding>>() {
 
-    class MyViewHolder(val v: LinearLayout) : RecyclerView.ViewHolder(v)
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        var v = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_con, parent, false) as LinearLayout
-        val clickable = v[clickablePos] as ConstraintLayout
-        val main = clickable[mainPos] as LinearLayout
-        val tvName = main[tvNamePos] as TextView
-        val tvCont = main[tvContPos] as TextView
-
-        // Fonts
-        tvName.setTypeface(textFont, Typeface.BOLD)
-        tvCont.setTypeface(textFont, Typeface.NORMAL)
-
-        return MyViewHolder(v)
+    override fun onCreateViewHolder(
+        parent: ViewGroup, viewType: Int
+    ): AnyViewHolder<ItemConBinding> {
+        val b = ItemConBinding.inflate(c.layoutInflater, parent, false)
+        b.tvName.setTypeface(c.textFont, Typeface.BOLD)
+        b.tvCont.setTypeface(c.textFont, Typeface.NORMAL)
+        return AnyViewHolder(b)
     }
 
     @SuppressLint("SetTextI18n")
-    override fun onBindViewHolder(h: MyViewHolder, i: Int) {
-        val clickable = h.v[clickablePos] as ConstraintLayout
-        val main = clickable[mainPos] as LinearLayout
-        val tvName = main[tvNamePos] as TextView
-        val tvCont = main[tvContPos] as TextView
-        val check = clickable[checkPos]
+    override fun onBindViewHolder(h: AnyViewHolder<ItemConBinding>, i: Int) {
+        h.b.tvName.text = "${i + 1}. ${Fun.countryNames()[c.m.gotCountries!![i].id.toInt()]}"
+        h.b.tvCont.text = c.resources.getString(
+            Continents.values()[c.m.gotCountries!![i].continent].label
+        )
 
-        // Texts
-        tvName.text = "${i + 1}. ${Fun.countryNames()[list[i].id.toInt()]}"
-        tvCont.text =
-            c.resources.getString(ir.mahdiparastesh.migratio.data.Continents.values()[list[i].continent].label)
-
-        // Clicks
-        (check.background as TransitionDrawable).apply {
+        (h.b.check.background as TransitionDrawable).apply {
             resetTransition()
             if (conCheck[i]) startTransition(td1Dur)
         }
-        clickable.setOnClickListener {
+        h.b.clickable.setOnClickListener {
             if (conCheck.size <= h.layoutPosition) return@setOnClickListener
-            (check.background as TransitionDrawable).apply {
+            (h.b.check.background as TransitionDrawable).apply {
                 conCheck[h.layoutPosition] = !conCheck[h.layoutPosition]
                 if (conCheck[h.layoutPosition]) startTransition(td1Dur)
                 else reverseTransition(td1Dur)
@@ -69,14 +48,5 @@ class ConAdap(val c: Context, val list: List<Country>) :
         }
     }
 
-    override fun getItemCount() = list.size
-
-
-    companion object {
-        const val clickablePos = 1
-        const val mainPos = 0
-        const val tvNamePos = 0
-        const val tvContPos = 1
-        const val checkPos = 1
-    }
+    override fun getItemCount() = c.m.gotCountries?.size ?: 0
 }
