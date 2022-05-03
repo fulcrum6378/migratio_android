@@ -6,9 +6,13 @@
     tools:context=".Panel"
     tools:ignore="MissingConstraints,ContentDescription,UnknownId">
 
-    <androidx.appcompat.widget.Toolbar style="@style/toolbar" />
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/toolbar" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout style="@style/main">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        style="@style/main">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvMyCon"
@@ -61,7 +65,9 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <View style="@style/tbShadow" />
+    <View
+        android:id="@+id/tbShadow"
+        style="@style/tbShadow" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/load"

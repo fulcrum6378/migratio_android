@@ -6,7 +6,9 @@
     tools:context=".Select"
     tools:ignore="MissingConstraints,UnknownId">
 
-    <androidx.appcompat.widget.Toolbar style="@style/toolbar" />
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/toolbar" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/sNav"
@@ -54,10 +56,12 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
+        android:id="@+id/tbShadow"
         style="@style/tbShadow"
         app:layout_constraintTop_toBottomOf="@id/sNav" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
         style="@style/main"
         app:layout_constraintTop_toBottomOf="@id/sNav">
 

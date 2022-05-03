@@ -63,12 +63,12 @@ data class Criterion(
             override fun newArray(size: Int) = arrayOfNulls<Criterion>(size)
         }
 
-        @Suppress("SpellCheckingInspection")
+        /*@Suppress("SpellCheckingInspection")
         val TAGS = arrayOf(
             "airpol", "humdev", "gayhap", "lngepi", "langen", "avgwth", "sumwin", "crimer",
             "worisk", "gpeace", "dnganm", "suicid", "sunshn", "frerel", "frebio", "fredrg",
             "fresex", "migacc", "racism", "intusr", "inflat", "unempl", "conscr"
-        )
+        )*/
 
         class SortCri(val by: Int = 0) : Comparator<Criterion> {
             override fun compare(a: Criterion, b: Criterion) = when (by) {

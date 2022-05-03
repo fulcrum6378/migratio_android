@@ -24,26 +24,23 @@
     </style>
 
     <style name="toolbar">
-        <item name="android:id">@id/toolbar</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">60dp</item><!--?attr/actionBarSize-->
         <item name="android:background">@color/CP</item><!--wrap_content-->
         <item name="android:paddingStart">20dp</item>
-        <item name="android:theme">@style/toolbarTheme</item>
+        <item name="android:theme">@style/ToolbarTheme</item>
         <item name="title">@string/app_name</item>
         <item name="titleTextColor">@color/CA</item>
         <item name="layout_constraintTop_toTopOf">parent</item>
     </style>
 
     <style name="tbShadow" parent="shadow">
-        <item name="android:id">@id/tbShadow</item>
         <item name="android:height">6dp</item>
         <item name="android:alpha">0.7</item>
         <item name="layout_constraintTop_toBottomOf">@id/toolbar</item>
     </style>
 
     <style name="main">
-        <item name="android:id">@id/main</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">0dp</item>
         <item name="layout_constraintTop_toBottomOf">@id/toolbar</item>

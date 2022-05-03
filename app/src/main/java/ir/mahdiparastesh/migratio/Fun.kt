@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package ir.mahdiparastesh.migratio
 
 import android.Manifest
@@ -65,7 +67,6 @@ class Fun {
         }
 
 
-        @Suppress("Deprecation")
         fun isOnlineOld(): Boolean {
             var nwi: NetworkInfo? = null
             if (cm != null) nwi = cm!!.activeNetworkInfo
@@ -149,7 +150,7 @@ class Fun {
             onCancel: DialogInterface.OnCancelListener? = null,
             censorBreaker: Boolean = false
         ): Boolean {
-            AlertDialog.Builder(c, R.style.alertDialogue1).apply {
+            AlertDialog.Builder(c, R.style.AlertDialogue).apply {
                 setTitle(title)
                 setMessage(message)
                 setIcon(R.mipmap.launcher_round)
@@ -188,7 +189,7 @@ class Fun {
             onCancel: DialogInterface.OnCancelListener? = null,
             font: Typeface = c.textFont
         ): Boolean {
-            AlertDialog.Builder(c, R.style.alertDialogue1).apply {
+            AlertDialog.Builder(c, R.style.AlertDialogue).apply {
                 setTitle(title)
                 setMessage(message)
                 setIcon(R.mipmap.launcher_round)
@@ -209,7 +210,7 @@ class Fun {
             c: BaseActivity, title: Int, message: String,
             copyable: Boolean, linkify: Boolean = false
         ): Boolean {
-            AlertDialog.Builder(c, R.style.alertDialogue1).apply {
+            AlertDialog.Builder(c, R.style.AlertDialogue).apply {
                 setTitle(title)
                 setMessage(message)
                 setIcon(R.mipmap.launcher_round)

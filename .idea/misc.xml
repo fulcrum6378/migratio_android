@@ -8,11 +8,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/fulcr/Projects/Migratio/app/src/main/res/drawable/checkbox_1.xml" value="0.1045" />
         <entry key="..\:/Users/fulcr/Projects/Migratio/app/src/main/res/drawable/shadow.xml" value="0.1705" />
         <entry key="..\:/Users/fulcr/Projects/Migratio/app/src/main/res/drawable/shadow_1.xml" value="0.1045" />
         <entry key="..\:/Users/fulcr/Projects/Migratio/app/src/main/res/layout/item_con.xml" value="0.17074275362318841" />
         <entry key="..\:/Users/fulcr/Projects/Migratio/app/src/main/res/layout/item_cri.xml" value="0.1" />
         <entry key="..\:/Users/fulcr/Projects/Migratio/app/src/main/res/layout/item_my_con.xml" value="0.17074275362318841" />
+        <entry key="..\:/Users/fulcr/Projects/Migratio/app/src/main/res/layout/select.xml" value="0.1" />
         <entry key="..\:/Users/fulcr/Projects/Migratio/app/src/main/res/menu/panel.xml" value="0.22447916666666667" />
         <entry key="..\:/Users/fulcr/Projects/migratio_android/app/src/main/res/layout/item_my_con.xml" value="0.14175724637681159" />
       </map>

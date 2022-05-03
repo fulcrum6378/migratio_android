@@ -39,9 +39,5 @@ data class MyCriterion(
             override fun createFromParcel(parcel: Parcel) = MyCriterion(parcel)
             override fun newArray(size: Int) = arrayOfNulls<MyCriterion>(size)
         }
-
-        class SortMyCri : Comparator<MyCriterion> {
-            override fun compare(a: MyCriterion, b: MyCriterion) = a.tag.compareTo(b.tag)
-        }
     }
 }

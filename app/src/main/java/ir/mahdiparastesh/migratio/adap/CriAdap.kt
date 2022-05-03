@@ -111,7 +111,8 @@ class CriAdap(val c: BaseActivity) : RecyclerView.Adapter<AnyViewHolder<ItemCriB
                 addListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationStart(animation: Animator?) {
                         if (goDown) h.b.overflow.vis()
-                        val maxAlpha = if (findMyC(c.m.gotCriteria!![i].tag).isOn) 1f else ofAlpha
+                        val maxAlpha =
+                            if (findMyC(c.m.gotCriteria!![h.layoutPosition].tag).isOn) 1f else ofAlpha
                         ObjectAnimator.ofFloat(h.b.overflow, "alpha", if (goDown) maxAlpha else 0f)
                             .apply { duration = 18; start(); }
                     }
