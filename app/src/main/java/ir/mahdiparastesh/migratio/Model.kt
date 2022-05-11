@@ -14,6 +14,7 @@ class Model : ViewModel() {
     var loaded = false
     var showingHelp = false
     var showingAbout = false
+    var searching: String? = null
 
     @Suppress("UNCHECKED_CAST")
     class Factory : ViewModelProvider.Factory {

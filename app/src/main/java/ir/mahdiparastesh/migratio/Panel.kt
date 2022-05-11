@@ -6,13 +6,15 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.os.*
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.core.content.ContextCompat
 import ir.mahdiparastesh.migratio.Fun.Companion.connected
 import ir.mahdiparastesh.migratio.Fun.Companion.now
 import ir.mahdiparastesh.migratio.Fun.Companion.vis
@@ -23,7 +25,6 @@ import ir.mahdiparastesh.migratio.more.BaseActivity
 import java.util.*
 import kotlin.math.round
 
-@Suppress("UNCHECKED_CAST")
 class Panel : BaseActivity() {
     private lateinit var b: PanelBinding
     var allComputations: List<Computation>? = null
@@ -32,7 +33,6 @@ class Panel : BaseActivity() {
     var anReload: ObjectAnimator? = null
     var selectGuide: AnimatorSet? = null
     var computeSuspendedForRepair = false
-    var rvScrollY = 0
 
     companion object {
         lateinit var handler: Handler
@@ -47,6 +47,7 @@ class Panel : BaseActivity() {
         setContentView(b.root)
 
         handler = object : Handler(Looper.getMainLooper()) {
+            @Suppress("UNCHECKED_CAST")
             override fun handleMessage(msg: Message) {
                 when (msg.what) {
                     Works.DOWNLOAD.ordinal -> if (msg.obj != null) when (msg.arg1) {
@@ -78,7 +79,7 @@ class Panel : BaseActivity() {
                             }
                             Types.MY_CRITERION.ordinal -> {
                                 m.myCriteria = ArrayList(msg.obj as List<MyCriterion>)
-                                if (!needsRepair(true)) compute(rvScrollY)
+                                if (!needsRepair(true)) compute()
                             }
                         }
                     }
@@ -174,27 +175,33 @@ class Panel : BaseActivity() {
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         val ret = super.onPrepareOptionsMenu(menu)
         (toolbar.menu.findItem(R.id.pmSearch)?.actionView as SearchView?)?.apply {
+            val svColor = color(R.color.migratioSearchView1)
             findViewById<SearchView.SearchAutoComplete>(androidx.appcompat.R.id.search_src_text)
-                ?.setTextColor(ContextCompat.getColor(context, R.color.migratioSearchView1))
+                ?.setTextColor(svColor)
+            findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
+                ?.colorFilter = PorterDuffColorFilter(svColor, PorterDuff.Mode.SRC_IN)
 
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String) = true
-
-                @SuppressLint("NotifyDataSetChanged")
                 override fun onQueryTextChange(newText: String): Boolean {
                     if (allComputations == null || computations == null || m.gotCountries == null ||
                         b.rvMyCon.adapter == null
                     ) return true
+                    m.searching = newText
                     computations = ArrayList()
                     for (p in allComputations!!)
                         if (Fun.countryNames()[
                                     m.gotCountries!!.find { it.id == p.id }!!.id.toInt()
                             ].contains(newText, true)
                         ) computations!!.add(p)
-                    arrange(0)
+                    arrange()
                     return true
                 }
             })
+            if (!m.searching.isNullOrBlank()) {
+                toolbar.menu.findItem(R.id.pmSearch)?.expandActionView()
+                setQuery(m.searching, false)
+            }
         }
         return ret
     }
@@ -217,11 +224,6 @@ class Panel : BaseActivity() {
         else -> super.onOptionsItemSelected(item)
     }
 
-    override fun onPause() {
-        super.onPause()
-        rvScrollY = b.rvMyCon.computeVerticalScrollOffset()
-    }
-
     var tapToExit = false
     override fun onBackPressed() {
         if (!tapToExit) {
@@ -234,10 +236,7 @@ class Panel : BaseActivity() {
                 }
             }.start(); return
         }
-        sp.edit().apply {
-            remove(Select.exSwitchedTo2nd)
-            apply()
-        }
+        sp.edit().remove(Select.exSwitchedTo2nd).apply()
         moveTaskToBack(true)
         Process.killProcess(Process.myPid())
         kotlin.system.exitProcess(0)
@@ -305,7 +304,7 @@ class Panel : BaseActivity() {
 
     fun doRefreshData() = (now() - sp.getLong(exLastUpdated, 0)) > Fun.doRefreshTime
 
-    fun compute(scrollY: Int = 0) {
+    fun compute() {
         if (m.myCountries.isNullOrEmpty() || m.gotCountries.isNullOrEmpty() ||
             m.gotCriteria.isNullOrEmpty() || m.myCriteria.isNullOrEmpty()
         ) {
@@ -330,12 +329,13 @@ class Panel : BaseActivity() {
             )
         if (allComputations == null) return
         computations = allComputations!!.toCollection(ArrayList())
-        arrange(scrollY)
+        arrange()
     }
 
-    fun arrange(scrollY: Int) {
-        b.rvMyCon.adapter = MyConAdap(this)
-        b.rvMyCon.scrollBy(0, scrollY)
+    @SuppressLint("NotifyDataSetChanged")
+    fun arrange() {
+        if (b.rvMyCon.adapter == null) b.rvMyCon.adapter = MyConAdap(this)
+        else b.rvMyCon.adapter?.notifyDataSetChanged()
     }
 
     fun resetMyCon() {

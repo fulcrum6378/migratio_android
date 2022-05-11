@@ -11,8 +11,10 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import ir.mahdiparastesh.migratio.Fun
 import ir.mahdiparastesh.migratio.Model
@@ -23,9 +25,7 @@ import ir.mahdiparastesh.migratio.data.*
 abstract class BaseActivity : AppCompatActivity() {
     val c: Context get() = applicationContext
     lateinit var m: Model
-    val sp: SharedPreferences by lazy {
-        getSharedPreferences("${packageName}_preferences", Context.MODE_PRIVATE)
-    }
+    val sp: SharedPreferences by lazy { getSharedPreferences("preferences", Context.MODE_PRIVATE) }
     val logoFont: Typeface by lazy { Fun.fonts(c, Fonts.LOGO) }
     val titleFont: Typeface by lazy { Fun.fonts(c, Fonts.TITLE) }
     val textFont: Typeface by lazy { Fun.fonts(c, Fonts.TEXT) }
@@ -70,6 +70,8 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     fun dp(px: Int = 0) = (dm.density * px.toFloat()).toInt()
+
+    fun color(@ColorRes res: Int) = ContextCompat.getColor(this, res)
 
     fun defaultMyCriteria(gotCriteria: List<Criterion>, handler: Handler?) {
         sp.edit().putBoolean(Panel.exRepair, false).apply()

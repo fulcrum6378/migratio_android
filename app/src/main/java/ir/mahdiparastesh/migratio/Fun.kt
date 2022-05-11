@@ -36,7 +36,7 @@ import java.util.*
 
 class Fun {
     companion object {
-        const val defDataDB = "data"
+        const val defDataDB = "data.db"
         const val td1Dur = 168
         const val doRefreshTime: Long = 86400000// A day
         val ssl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "s" else ""
