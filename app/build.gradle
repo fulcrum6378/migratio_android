@@ -11,8 +11,8 @@ android {
         minSdkVersion 21
         //noinspection OldTargetApi
         targetSdkVersion 31
-        versionCode 5
-        versionName '3.7.0'
+        versionCode 6
+        versionName '3.7.5'
     }
 
     buildTypes {

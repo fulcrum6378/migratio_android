@@ -219,8 +219,8 @@ class Panel : BaseActivity() {
                 }, resources.getString(R.string.shareResChooser)))
             true
         }
-        R.id.pmHelp -> help()
-        R.id.pmAbout -> about()
+        R.id.pmHelp -> if (!m.showingHelp) help() else false
+        R.id.pmAbout -> if (!m.showingAbout) about() else false
         else -> super.onOptionsItemSelected(item)
     }
 
@@ -357,7 +357,6 @@ class Panel : BaseActivity() {
     }
 
     fun help(): Boolean {
-        if (m.showingHelp) return false
         m.showingHelp = true
         Fun.alertDialogue1(this, R.string.pmHelp, R.string.pHelp,
             textFont, { _, _ -> m.showingHelp = false }, { m.showingHelp = false }
@@ -366,7 +365,6 @@ class Panel : BaseActivity() {
     }
 
     fun about(): Boolean {
-        if (m.showingAbout) return false
         m.showingAbout = true
         Fun.alertDialogue1(this, R.string.pmAbout, R.string.about,
             textFont, { _, _ -> m.showingAbout = false }, { m.showingAbout = false }
