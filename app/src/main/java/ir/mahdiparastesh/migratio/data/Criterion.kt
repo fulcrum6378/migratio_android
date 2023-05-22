@@ -30,15 +30,15 @@ data class Criterion(
         reference = parcel.readString()!!
     )
 
-    override fun writeToParcel(out: Parcel?, flags: Int) {
-        out?.writeLong(id)
-        out?.writeString(tag)
-        out?.writeString(name)
-        out?.writeString(type)
-        out?.writeString(good)
-        out?.writeString(medi)
-        out?.writeInt(censor)
-        out?.writeString(reference)
+    override fun writeToParcel(out: Parcel, flags: Int) {
+        out.writeLong(id)
+        out.writeString(tag)
+        out.writeString(name)
+        out.writeString(type)
+        out.writeString(good)
+        out.writeString(medi)
+        out.writeInt(censor)
+        out.writeString(reference)
     }
 
     override fun describeContents() = 0
@@ -62,13 +62,6 @@ data class Criterion(
             override fun createFromParcel(parcel: Parcel) = Criterion(parcel)
             override fun newArray(size: Int) = arrayOfNulls<Criterion>(size)
         }
-
-        /*@Suppress("SpellCheckingInspection")
-        val TAGS = arrayOf(
-            "airpol", "humdev", "gayhap", "lngepi", "langen", "avgwth", "sumwin", "crimer",
-            "worisk", "gpeace", "dnganm", "suicid", "sunshn", "frerel", "frebio", "fredrg",
-            "fresex", "migacc", "racism", "intusr", "inflat", "unempl", "conscr"
-        )*/
 
         class SortCri(val by: Int = 0) : Comparator<Criterion> {
             override fun compare(a: Criterion, b: Criterion) = when (by) {

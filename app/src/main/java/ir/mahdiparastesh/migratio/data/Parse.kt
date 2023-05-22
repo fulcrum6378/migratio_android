@@ -16,10 +16,8 @@ import java.net.URLDecoder
 import java.net.URLEncoder
 
 class Parse(val c: Context, val handler: Handler, val type: Types) : Thread() {
-    companion object {
-        val xmlCountries = Fun.cloudFol + "countries.xml"
-        val xmlCriteria = Fun.cloudFol + "criteria.xml"
-    }
+    val xmlCountries = Fun.cloudFol + "countries.xml"
+    val xmlCriteria = Fun.cloudFol + "criteria.xml"
 
     override fun run() {
         var address = ""
@@ -31,11 +29,13 @@ class Parse(val c: Context, val handler: Handler, val type: Types) : Thread() {
                 timeout = 25000
                 iType = Types.COUNTRY.ordinal
             }
+
             Types.CRITERION -> {
                 address = xmlCriteria
                 timeout = 15000
                 iType = Types.CRITERION.ordinal
             }
+
             else -> iType = -1
         }
         if (iType == -1) return

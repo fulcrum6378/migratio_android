@@ -38,7 +38,7 @@ class Fun {
     companion object {
         const val defDataDB = "data.db"
         const val td1Dur = 168
-        const val doRefreshTime: Long = 86400000// A day
+        const val doRefreshTime: Long = 86400000 // A day
         val ssl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "s" else ""
         val cloudFol = "http${ssl}://migratio.mahdiparastesh.ir/xml/"
         var censorBreak = 0
@@ -106,12 +106,12 @@ class Fun {
                 repeatCount = ObjectAnimator.INFINITE
                 interpolator = LinearInterpolator()
                 addListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationStart(animation: Animator?) {
+                    override fun onAnimationStart(animation: Animator) {
                         placeHolder?.vis(false)
                         iv.vis()
                     }
 
-                    override fun onAnimationCancel(animation: Animator?) {
+                    override fun onAnimationCancel(animation: Animator) {
                         iv.vis(false)
                         placeHolder?.vis()
                     }
@@ -242,7 +242,7 @@ class Fun {
         }
 
         fun fixADTitle(c: BaseActivity, font: Typeface): TextView? {
-            var tvTitle = c.window?.findViewById<TextView>(R.id.alertTitle)
+            var tvTitle = c.window?.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)
             tvTitle?.setTypeface(font, Typeface.BOLD)
             tvTitle?.textSize = c.resources.getDimension(R.dimen.alert1Title) / c.dm.density
             return tvTitle

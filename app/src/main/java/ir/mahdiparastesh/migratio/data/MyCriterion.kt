@@ -21,17 +21,16 @@ data class MyCriterion(
         importance = parcel.readInt()
     )
 
-    override fun writeToParcel(out: Parcel?, flags: Int) {
-        out?.writeLong(id)
-        out?.writeString(tag)
-        out?.writeByte(if (isOn) 1 else 2)
-        out?.writeString(good)
-        out?.writeInt(importance)
+    override fun writeToParcel(out: Parcel, flags: Int) {
+        out.writeLong(id)
+        out.writeString(tag)
+        out.writeByte(if (isOn) 1 else 2)
+        out.writeString(good)
+        out.writeInt(importance)
     }
 
     override fun describeContents() = 0
 
-    @Suppress("SpellCheckingInspection")
     companion object {
         @Suppress("unused")
         @JvmField

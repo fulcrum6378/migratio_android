@@ -2,7 +2,7 @@ package ir.mahdiparastesh.migratio.data;
 
 import ir.mahdiparastesh.migratio.R;
 
-@SuppressWarnings({"unused", "RedundantSuppression"})
+@SuppressWarnings("unused")
 public enum Continents {
     AFRICA(R.string.africa),
     ASIA(R.string.asia),

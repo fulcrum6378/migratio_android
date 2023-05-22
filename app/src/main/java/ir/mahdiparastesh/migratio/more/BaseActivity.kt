@@ -20,7 +20,11 @@ import ir.mahdiparastesh.migratio.Fun
 import ir.mahdiparastesh.migratio.Model
 import ir.mahdiparastesh.migratio.Panel
 import ir.mahdiparastesh.migratio.R
-import ir.mahdiparastesh.migratio.data.*
+import ir.mahdiparastesh.migratio.data.Criterion
+import ir.mahdiparastesh.migratio.data.MyCriterion
+import ir.mahdiparastesh.migratio.data.Types
+import ir.mahdiparastesh.migratio.data.Work
+import ir.mahdiparastesh.migratio.data.Works
 
 abstract class BaseActivity : AppCompatActivity() {
     val c: Context get() = applicationContext
@@ -30,13 +34,12 @@ abstract class BaseActivity : AppCompatActivity() {
     val titleFont: Typeface by lazy { Fun.fonts(c, Fonts.TITLE) }
     val textFont: Typeface by lazy { Fun.fonts(c, Fonts.TEXT) }
     lateinit var toolbar: Toolbar
-    var dm = DisplayMetrics()
+    val dm: DisplayMetrics by lazy { resources.displayMetrics }
     val dirLtr by lazy { c.resources.getBoolean(R.bool.dirLtr) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        m = ViewModelProvider(this, Model.Factory()).get("Model", Model::class.java)
-        dm = resources.displayMetrics
+        m = ViewModelProvider(this, Model.Factory())["Model", Model::class.java]
 
         Fun.cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

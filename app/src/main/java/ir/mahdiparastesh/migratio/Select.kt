@@ -26,7 +26,7 @@ import java.util.*
 @SuppressLint("NotifyDataSetChanged")
 @Suppress("UNCHECKED_CAST")
 class Select : BaseActivity() {
-    private lateinit var b: SelectBinding
+    private val b: SelectBinding by lazy { SelectBinding.inflate(layoutInflater) }
     private lateinit var sNav1TV: TextView
     private lateinit var sNav2TV: TextView
     private lateinit var exporter: Exporter
@@ -43,7 +43,6 @@ class Select : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        b = SelectBinding.inflate(layoutInflater)
         setContentView(b.root)
         exporter = Exporter(this)
 
@@ -77,6 +76,7 @@ class Select : BaseActivity() {
                     Works.INSERT_ALL.ordinal -> when (msg.arg1) {
                         Works.NONE.ordinal -> {
                         }
+
                         Works.EXIT_ON_SAVED.ordinal -> cut()
                         Works.NOTIFY_ON_SAVED.ordinal -> when (msg.arg2) {
                             Types.MY_CRITERION.ordinal -> b.rvCriteria.adapter?.notifyDataSetChanged()
@@ -93,6 +93,7 @@ class Select : BaseActivity() {
                                     (msg.obj as List<MyCriterion>).toCollection(ArrayList())
                                 b.rvCriteria.adapter?.notifyDataSetChanged()
                             }
+
                             Works.IMPORT.ordinal -> cut()
                         }
                     }
@@ -163,17 +164,22 @@ class Select : BaseActivity() {
                 if (m.gotCriteria == null) return@OnClickListener
                 defaultMyCriteria(m.gotCriteria!!, handler)
             })
+
         R.id.smSources -> Fun.alertDialogue3(
             this@Select, R.string.smSources,
             m.gotCriteria?.map { it.reference }?.toSet()?.joinToString("\n\n")
                 ?: resources.getString(R.string.noInternet),
             copyable = false, linkify = true
         )
+
         R.id.smHelp -> help()
         else -> super.onOptionsItemSelected(item)
     }
 
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        @Suppress("DEPRECATION")
         if (!saveFocused() || !doSave) super.onBackPressed()
     }
 
@@ -209,7 +215,7 @@ class Select : BaseActivity() {
 
     fun saveFocused(): Boolean {
         var isFocused = false
-        if (m.gotCriteria == null) return isFocused
+        if (m.gotCriteria == null) return false
         for (f in 0 until b.rvCriteria.childCount) {
             val bc = ItemCriBinding.bind(b.rvCriteria[f])
             if (bc.ofo2ET.hasFocus()) {
@@ -256,6 +262,7 @@ class Select : BaseActivity() {
         return true
     }
 
+    @Suppress("DEPRECATION")
     fun cut() {
         try {
             onBackPressed()

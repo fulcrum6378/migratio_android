@@ -26,13 +26,14 @@ import java.util.*
 import kotlin.math.round
 
 class Panel : BaseActivity() {
-    private lateinit var b: PanelBinding
+    private val b: PanelBinding by lazy { PanelBinding.inflate(layoutInflater) }
     var allComputations: List<Computation>? = null
     var computations: ArrayList<Computation>? = null
     var canGoToSelect = true
     var anReload: ObjectAnimator? = null
     var selectGuide: AnimatorSet? = null
     var computeSuspendedForRepair = false
+    var tapToExit = false
 
     companion object {
         lateinit var handler: Handler
@@ -43,7 +44,6 @@ class Panel : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        b = PanelBinding.inflate(layoutInflater)
         setContentView(b.root)
 
         handler = object : Handler(Looper.getMainLooper()) {
@@ -55,6 +55,7 @@ class Panel : BaseActivity() {
                             c, handler, Works.CLEAR_AND_INSERT_ALL, Types.COUNTRY,
                             listOf(msg.obj as List<Country>, Types.COUNTRY.ordinal)
                         ).start()
+
                         Types.CRITERION.ordinal -> Work(
                             c, handler, Works.CLEAR_AND_INSERT_ALL, Types.CRITERION,
                             listOf(msg.obj as List<Criterion>, Types.CRITERION.ordinal)
@@ -70,6 +71,7 @@ class Panel : BaseActivity() {
                                     else noInternet()
                                 } else postLoading()
                             }
+
                             Types.CRITERION.ordinal -> {
                                 m.gotCriteria = msg.obj as List<Criterion>
                                 if (m.gotCriteria.isNullOrEmpty() || doRefreshData()) {
@@ -77,6 +79,7 @@ class Panel : BaseActivity() {
                                     else noInternet()
                                 } else postLoading() // defaultMyCriteria() is MESSY here
                             }
+
                             Types.MY_CRITERION.ordinal -> {
                                 m.myCriteria = ArrayList(msg.obj as List<MyCriterion>)
                                 if (!needsRepair(true)) compute()
@@ -90,6 +93,7 @@ class Panel : BaseActivity() {
                             if (dataLoaded()) loaded()
                             postLoading(true)
                         }
+
                         Types.CRITERION.ordinal -> {
                             m.gotCriteria = msg.obj as List<Criterion>
                             if (m.myCriteria.isNullOrEmpty())
@@ -97,6 +101,7 @@ class Panel : BaseActivity() {
                             else sp.edit().putBoolean(exRepair, true).apply()
                             postLoading(true)
                         }
+
                         Types.MY_CRITERION.ordinal -> when (msg.arg2) {
                             Works.REPAIR.ordinal -> {
                                 sp.edit().putBoolean(exRepair, false).apply()
@@ -210,6 +215,7 @@ class Panel : BaseActivity() {
         R.id.pmSearch -> true
         R.id.pmRefresh -> {
             refresh(); true; }
+
         R.id.pmShareResults -> {
             if (allComputations != null && m.gotCountries != null)
                 startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
@@ -219,12 +225,13 @@ class Panel : BaseActivity() {
                 }, resources.getString(R.string.shareResChooser)))
             true
         }
+
         R.id.pmHelp -> if (!m.showingHelp) help() else false
         R.id.pmAbout -> if (!m.showingAbout) about() else false
         else -> super.onOptionsItemSelected(item)
     }
 
-    var tapToExit = false
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (!tapToExit) {
             Toast.makeText(c, R.string.tapToExit, Toast.LENGTH_LONG).show()
@@ -260,7 +267,7 @@ class Panel : BaseActivity() {
             startDelay = 1110
             duration = 870
             addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     b.root.removeView(b.load)
                 }
             })
@@ -327,7 +334,6 @@ class Panel : BaseActivity() {
                 m.myCountries!!.toList(),
                 m.myCriteria!!
             )
-        if (allComputations == null) return
         computations = allComputations!!.toCollection(ArrayList())
         arrange()
     }

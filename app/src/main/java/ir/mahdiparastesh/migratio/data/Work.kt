@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Handler
 import androidx.room.Room
 import ir.mahdiparastesh.migratio.Fun
+import ir.mahdiparastesh.migratio.data.Works.*
 
 @Suppress("UNCHECKED_CAST")
 class Work(
@@ -19,11 +20,10 @@ class Work(
             .fallbackToDestructiveMigration()
             .build()
         var dao = db.dao()
-        @Suppress("NON_EXHAUSTIVE_WHEN")
         when (action) {
-            Works.GET_ALL -> handler?.obtainMessage(
+            GET_ALL -> handler?.obtainMessage(
                 action.ordinal,
-                if (values != null && values.isNotEmpty()) values[0] as Int else 0,
+                if (!values.isNullOrEmpty()) values[0] as Int else 0,
                 if (values != null && values.size > 1) values[1] as Int else 0,
                 when (type) {
                     Types.COUNTRY -> dao.getCountries()
@@ -32,7 +32,7 @@ class Work(
                 }
             )?.sendToTarget()
 
-            Works.GET_ONE -> if (values != null && values.isNotEmpty()) handler?.obtainMessage(
+            GET_ONE -> if (!values.isNullOrEmpty()) handler?.obtainMessage(
                 action.ordinal,
                 if (values.size > 1) values[1] as Int else 0,
                 if (values.size > 2) values[2] as Int else 0,
@@ -43,7 +43,7 @@ class Work(
                 }
             )?.sendToTarget()
 
-            Works.INSERT_ALL -> if (values != null && values.isNotEmpty()) {
+            INSERT_ALL -> if (!values.isNullOrEmpty()) {
                 when (type) {
                     Types.COUNTRY -> dao.insertCountries(values[0] as List<Country>)
                     Types.CRITERION -> dao.insertCriteria(values[0] as List<Criterion>)
@@ -59,7 +59,7 @@ class Work(
                 )?.sendToTarget()
             }
 
-            Works.DELETE_ALL -> if (values != null && values.isNotEmpty()) {
+            DELETE_ALL -> if (!values.isNullOrEmpty()) {
                 when (type) {
                     Types.COUNTRY -> dao.deleteCountries(values[0] as List<Country>)
                     Types.CRITERION -> dao.deleteCriteria(values[0] as List<Criterion>)
@@ -71,16 +71,18 @@ class Work(
                 )?.sendToTarget()
             }
 
-            Works.CLEAR_AND_INSERT_ALL -> if (values != null && values.isNotEmpty()) {
+            CLEAR_AND_INSERT_ALL -> if (!values.isNullOrEmpty()) {
                 when (type) {
                     Types.COUNTRY -> {
                         dao.deleteCountries(dao.getCountries())
                         dao.insertCountries(values[0] as List<Country>)
                     }
+
                     Types.CRITERION -> {
                         dao.deleteCriteria(dao.getCriteria())
                         dao.insertCriteria(values[0] as List<Criterion>)
                     }
+
                     Types.MY_CRITERION -> {
                         dao.deleteMyCriteria(dao.getMyCriteria())
                         dao.insertMyCriteria(values[0] as List<MyCriterion>)
@@ -95,6 +97,8 @@ class Work(
                     }
                 )?.sendToTarget()
             }
+
+            else -> {}
         }
         db.close()
     }

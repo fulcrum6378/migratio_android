@@ -3,7 +3,7 @@ package ir.mahdiparastesh.migratio
 import ir.mahdiparastesh.migratio.data.Country
 import ir.mahdiparastesh.migratio.data.Criterion
 import ir.mahdiparastesh.migratio.data.MyCriterion
-import java.util.*
+import java.util.Collections
 import kotlin.math.abs
 
 class Computation(val id: Long, val score: Double) {
@@ -127,6 +127,7 @@ class Computation(val id: Long, val score: Double) {
                     }
                     return estimate
                 }
+
                 value.substring(0, 1) == "~" -> return value.substring(1).toDouble()
                 else -> return value.toDouble()
             }
